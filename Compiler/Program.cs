@@ -53,13 +53,13 @@ namespace Compiler
                             byte t = 0, m = 0;
                             for (int x = 0; x < image.Width; x++)
                             {
-                                if ((x & 4) == 0)
+                                if ((x & 3) == 0)
                                     t = 0;
-                                if ((x & 8) == 0)
+                                if ((x & 7) == 0)
                                     m = 0;
 
                                 t = (byte)((t << 2) + image[x, y].R / 64);
-                                m = (byte)((m << 1) + image[x, y].A == 0 ? 0 : 1);
+                                m = (byte)((m << 1) + (image[x, y].A == 0 ? 0 : 1));
 
                                 if ((x & 3) == 3)
                                     texture += $" {t},";
