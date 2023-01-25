@@ -40,6 +40,13 @@ namespace Stealth
         public Stealth()
         {
             _graphics = new GraphicsDeviceManager(this);
+            _graphics.PreparingDeviceSettings += (sender, e) =>
+            {
+                e.GraphicsDeviceInformation.PresentationParameters.PresentationInterval = PresentInterval.Immediate;
+            };
+            IsFixedTimeStep = true;
+            TargetElapsedTime = TimeSpan.FromSeconds(0.0001);
+
 
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
@@ -50,7 +57,7 @@ namespace Stealth
             // TODO: Add your initialization logic here
             _graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
             _graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
-            _graphics.IsFullScreen = true;
+            //_graphics.IsFullScreen = true;
             _graphics.ApplyChanges();
 
             lastGameTime = 0;
@@ -62,6 +69,13 @@ namespace Stealth
             State = new State();
 
             State.Player.X = (sbyte)(Maps[State.Player.Room].Width / 2);
+
+            // Initialize graphics
+            Assets.Ceiling.Init();
+            Assets.Floor.Init();
+            Assets.Wall.Init();
+            Assets.Player.Init();
+            Assets.Item.Init();
 
             xPosInit = new double[SCREEN_WIDTH];
             yPosInit = new double[SCREEN_WIDTH];
@@ -139,7 +153,7 @@ namespace Stealth
 
                 int xPrev = (int)Math.Floor(xPos);
 
-                while (xPos > 0 && xPos < Maps[State.Player.Room].Width && yPos < Maps[State.Player.Room].Height && Maps[State.Player.Room].Walls[(int)Math.Floor(yPos), (int)Math.Floor(xPos)] == 0)
+                while (xPos > 0 && xPos < Maps[State.Player.Room].Width && yPos < Maps[State.Player.Room].Height && Maps[State.Player.Room].Walls[(int)Math.Floor(yPos), (int)Math.Floor(xPos)] < 0)
                 {
                     xPrev = (int)Math.Floor(xPos);
 
@@ -175,62 +189,66 @@ namespace Stealth
                         double z = (double)y * INVERSE_SCREEN_HEIGHT - 0.5;
                         double yFloor = 0.5 * CAMERA_DISTANCE / z - CAMERA_DISTANCE;
                         double xFloor = ((x + 0.5) * INVERSE_SCREEN_WIDTH - 0.5) * CAMERA_WIDTH * (CAMERA_DISTANCE + yFloor) * INVERSE_CAMERA_DISTANCE + xCam;
-                        int i = (int)(WALL_WIDTH * (xFloor - Math.Floor(xFloor)));
-                        int j = (int)(WALL_WIDTH * (yFloor - Math.Floor(yFloor)));
+                        short iFloor = (short)Math.Floor(xFloor);
+                        short jFloor = (short)Math.Floor(yFloor);
+                        short i = (short)(Assets.Floor.Sprites[Maps[State.Player.Room].Ceilings[jFloor, iFloor]].Width * (xFloor - Math.Floor(xFloor)));
+                        short j = (short)(Assets.Floor.Sprites[Maps[State.Player.Room].Ceilings[jFloor, iFloor]].Height * (yFloor - Math.Floor(yFloor)));
                         if (ToDepth(yFloor) > depth[screenIdx])
                         {
-                            screen[screenIdx] = Floors[0][j, i];
+                            screen[screenIdx] = Assets.Floor.Sprites[Maps[State.Player.Room].Ceilings[jFloor, iFloor]].GetPixel(i, j);
                             depth[screenIdx] = ToDepth(yFloor);
                         }
                     }
                     // Render ceilings
                     else if (y < (SCREEN_HEIGHT - height) * 0.5)
                     {
-                        double z = (double)y * INVERSE_SCREEN_HEIGHT - 0.5;
-                        double yCeiling = CAMERA_DISTANCE - 0.5 * CAMERA_DISTANCE / z;
-                        double xCeiling = ((x + 0.5) * INVERSE_SCREEN_WIDTH - 0.5) * CAMERA_WIDTH * (CAMERA_DISTANCE - yCeiling) * INVERSE_CAMERA_DISTANCE - xCam;
-                        int i = (int)(WALL_WIDTH * (xCeiling - Math.Floor(xCeiling)));
-                        int j = (int)(WALL_WIDTH * (yCeiling - Math.Floor(yCeiling)));
+                        double z = (double)0.5 - y * INVERSE_SCREEN_HEIGHT ;
+                        double yCeiling = 0.5 * CAMERA_DISTANCE / z - CAMERA_DISTANCE;
+                        double xCeiling = ((x + 0.5) * INVERSE_SCREEN_WIDTH - 0.5) * CAMERA_WIDTH * (CAMERA_DISTANCE + yCeiling) * INVERSE_CAMERA_DISTANCE + xCam;
+                        short iCeiling = (short)Math.Floor(xCeiling);
+                        short jCeiling = (short)Math.Floor(yCeiling);
+                        short iFine = (short)(Assets.Ceiling.Sprites[Maps[State.Player.Room].Ceilings[jCeiling, iCeiling]].Width * (xCeiling - Math.Floor(xCeiling)));
+                        short jFine = (short)(Assets.Ceiling.Sprites[Maps[State.Player.Room].Ceilings[jCeiling, iCeiling]].Height * (yCeiling - Math.Floor(yCeiling)));
                         if (ToDepth(yCeiling) > depth[screenIdx])
                         {
-                            screen[screenIdx] = Ceilings[0][j, i];
+                            screen[screenIdx] = Assets.Ceiling.Sprites[Maps[State.Player.Room].Ceilings[jCeiling, iCeiling]].GetPixel(iFine, jFine);
                             depth[screenIdx] = ToDepth(yCeiling);
                         }
                     }
                     // Render Walls
                     else
                     {
-                        int j = (int)(WALL_HEIGHT * (y - (SCREEN_HEIGHT - height) * 0.5) / height);
-                        int i = orientation ? (int)(WALL_WIDTH * (xPos - Math.Floor(xPos))) : (int)(WALL_WIDTH * (yPos - Math.Floor(yPos)));
-                        j = Math.Max(Math.Min(j, WALL_HEIGHT-1), 0);
+                        short j = (short)(Assets.Wall.Sprites[wall].Height * (y - (SCREEN_HEIGHT - height) * 0.5) / height);
+                        short i = orientation ? (short)(Assets.Wall.Sprites[wall].Width * (xPos - Math.Floor(xPos))) : (short)(Assets.Wall.Sprites[wall].Width * (yPos - Math.Floor(yPos)));
+                        j = Math.Max(Math.Min(j, (short)(Assets.Wall.Sprites[wall].Height-1)), (short)0);
                         if (ToDepth(yPos) > depth[screenIdx])
                         {
-                            screen[screenIdx] = Walls[wall, j, i];
+                            screen[screenIdx] = Assets.Wall.Sprites[wall].GetPixel(i, j);
                             depth[screenIdx] = ToDepth(yPos);
                         }
                     }
 
-                    // Render sprites
-                    foreach (Sprites sprite in Maps[State.Player.Room].Sprites)
-                    {
-                        int i = (int)Math.Floor(WALL_WIDTH * (((((double)CAMERA_WIDTH * x * INVERSE_SCREEN_WIDTH) - (CAMERA_WIDTH * 0.5)) * (CAMERA_DISTANCE + sprite.Location.Y) * INVERSE_CAMERA_DISTANCE) + (CAMERA_WIDTH * 0.5 - sprite.Location.X + xCam - CAMERA_WIDTH * 0.5)));
-                        int j = (int)(WALL_HEIGHT * (((double)y * INVERSE_SCREEN_HEIGHT - 0.5) * (CAMERA_DISTANCE + sprite.Location.Y) * INVERSE_CAMERA_DISTANCE + 0.5));
+                    //// Render sprites
+                    //foreach (Sprites sprite in Maps[State.Player.Room].Sprites)
+                    //{
+                    //    int i = (int)Math.Floor(Assets.Wall.Sprites[wall].Width * (((((double)CAMERA_WIDTH * x * INVERSE_SCREEN_WIDTH) - (CAMERA_WIDTH * 0.5)) * (CAMERA_DISTANCE + sprite.Location.Y) * INVERSE_CAMERA_DISTANCE) + (CAMERA_WIDTH * 0.5 - sprite.Location.X + xCam - CAMERA_WIDTH * 0.5)));
+                    //    int j = (int)(Assets.Wall.Sprites[wall].Height * (((double)y * INVERSE_SCREEN_HEIGHT - 0.5) * (CAMERA_DISTANCE + sprite.Location.Y) * INVERSE_CAMERA_DISTANCE + 0.5));
 
-                        if (i >= 0 && i < WALL_WIDTH && j >= 0 && j < WALL_HEIGHT && sprite.Texture[j, i] >= 0 && ToDepth(sprite.Location.Y - 0.1) > depth[screenIdx])
-                        {
-                            screen[screenIdx] = sprite.Texture[j, i];
-                            depth[screenIdx] = ToDepth(sprite.Location.Y - 0.1);
-                        }
-                    }
+                    //    if (i >= 0 && i < Assets.Wall.Sprites[wall].Width && j >= 0 && j < Assets.Wall.Sprites[wall].Height && sprite.Texture[j, i] >= 0 && ToDepth(sprite.Location.Y - 0.1) > depth[screenIdx])
+                    //    {
+                    //        screen[screenIdx] = sprite.Texture[j, i];
+                    //        depth[screenIdx] = ToDepth(sprite.Location.Y - 0.1);
+                    //    }
+                    //}
 
                     // Render State.Player
                     {
-                        int i = (int)Math.Floor(Player.PLAYER_WIDTH / 3 + 8 * (((((double)CAMERA_WIDTH * x * INVERSE_SCREEN_WIDTH) - (CAMERA_WIDTH * 0.5)) * (CAMERA_DISTANCE + State.Player.Yfine) * INVERSE_CAMERA_DISTANCE) + (CAMERA_WIDTH * 0.5 - State.Player.Xfine + xCam - CAMERA_WIDTH * 0.5)));
-                        int j = (int)(Player.PLAYER_HEIGHT * (((double)y * INVERSE_SCREEN_HEIGHT - 0.5) * (CAMERA_DISTANCE + State.Player.Yfine) * INVERSE_CAMERA_DISTANCE + 0.5));
+                        short i = (short)Math.Floor(Assets.Player.Sprites[State.Player.Frame].Width + 8 * (((((double)CAMERA_WIDTH * x * INVERSE_SCREEN_WIDTH) - (CAMERA_WIDTH * 0.5)) * (CAMERA_DISTANCE + State.Player.Yfine) * INVERSE_CAMERA_DISTANCE) + (CAMERA_WIDTH * 0.5 - State.Player.Xfine + xCam - CAMERA_WIDTH * 0.5)));
+                        short j = (short)(Assets.Player.Sprites[State.Player.Frame].Height * (((double)y * INVERSE_SCREEN_HEIGHT - 0.5) * (CAMERA_DISTANCE + State.Player.Yfine) * INVERSE_CAMERA_DISTANCE + 0.5));
 
-                        if (i >= 0 && i < Player.PLAYER_WIDTH && j >= 0 && j < Player.PLAYER_HEIGHT && State.Player.GetSprite()[j, i] >= 0 && ToDepth(State.Player.Yfine) > depth[screenIdx])
+                        if (i >= 0 && i < Assets.Player.Sprites[State.Player.Frame].Width && j >= 0 && j < Assets.Player.Sprites[State.Player.Frame].Height && Assets.Player.Sprites[State.Player.Frame].GetPixel(i, j) >= 0 && ToDepth(State.Player.Yfine) > depth[screenIdx])
                         {
-                            screen[screenIdx] = State.Player.GetSprite()[j, i];
+                            screen[screenIdx] = Assets.Player.Sprites[State.Player.Frame].GetPixel(i, j);
                             depth[screenIdx] = ToDepth(State.Player.Yfine);
                         }
                     }
@@ -253,10 +271,9 @@ namespace Stealth
             SpriteBatch spriteBatch = new SpriteBatch(GraphicsDevice);
             spriteBatch.Begin();
             spriteBatch.Draw(texture, new Rectangle(new Point(0, 0), new Point(_graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight)), Color.White);
+            //spriteBatch.DrawString(new SpriteFont(, $"FRAMERATE: {1 / (gameTime.TotalGameTime.TotalSeconds - lastGameTime):N2} FPS", new Vector2(), Color.Red);
             spriteBatch.End();
-
-            //Debug.WriteLine($"FRAMERATE: {1 / (gameTime.TotalGameTime.TotalSeconds - lastGameTime):N2} FPS");
-            //lastGameTime = gameTime.TotalGameTime.TotalSeconds;
+            lastGameTime = gameTime.TotalGameTime.TotalSeconds;
 
             base.Draw(gameTime);
         }
