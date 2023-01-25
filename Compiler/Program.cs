@@ -42,10 +42,9 @@ namespace Compiler
 
                     foreach (string asset in Directory.GetFiles(folder))
                     {
-                        using(Stream stream = File.Open(asset, FileMode.Open))
+                        using (StreamReader reader = new StreamReader(File.Open(asset, FileMode.Open)))
                         {
-                            Bitmap bitmap = new Bitmap(stream);
-
+                            /*
                             string texture = "{", mask = "{";
 
                             for (int y = 0; y < bitmap.Height; y++)
@@ -76,6 +75,7 @@ namespace Compiler
                             mask += " }";
 
                             buffer += $"                 new Sprite(new byte[] {texture}, new byte[] {mask}),\n";
+                            */
                         }
                     }
 
