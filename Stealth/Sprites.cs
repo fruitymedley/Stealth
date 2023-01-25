@@ -33,6 +33,7 @@ namespace Stealth
             // Check if bit at y, x is 1; if so, return 2 bits at y, x
             return (sbyte)((mask[y, x / 8] & (1 << (x & 7))) == 0 ? -1 : color[y, x / 4] & (3 << (x & 3)));
         }
+    }
 
     public class Sprites
     {
