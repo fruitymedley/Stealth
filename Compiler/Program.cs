@@ -1,7 +1,8 @@
 ﻿using System;
-using System.Drawing;
 using System.IO;
 using System.Text;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace Compiler
 {
@@ -21,7 +22,7 @@ namespace Compiler
 
             foreach (string folder in Directory.GetDirectories("Assets"))
             {
-                using (FileStream file = File.OpenWrite($"{output}\\{folder}.cs"))
+                using (FileStream file = File.Create($"{output}\\{folder}.cs"))
                 {
                     string buffer =
                         "using System;\n" +
@@ -31,57 +32,53 @@ namespace Compiler
                         "\n" +
                         "namespace Stealth.Assets\n" +
                         "{\n" +
+                        $"   class {Path.GetFileName(folder)}\n" +
                         "   {\n" +
-                        $"       class {Path.GetFileName(folder)}\n" +
+                        "       public static Sprite[] Sprites;\n" +
+                        "       public static void Init()\n" +
                         "       {\n" +
-                        "           public static Sprite[] Sprites;\n" +
-                        "           public static void Init()\n" +
-                        "           {\n" +
-                        "               Sprites = new Sprite[]\n" +
-                        "               {\n";
+                        "           Sprites = new Sprite[]\n" +
+                        "           {\n";
 
                     foreach (string asset in Directory.GetFiles(folder))
                     {
-                        using (StreamReader reader = new StreamReader(File.Open(asset, FileMode.Open)))
+                        Image<Rgba32> image = Image.Load<Rgba32>(File.ReadAllBytes(asset));
+                        
+                        string texture = "{", mask = "{";
+
+                        for (int y = 0; y < image.Height; y++)
                         {
-                            /*
-                            string texture = "{", mask = "{";
-
-                            for (int y = 0; y < bitmap.Height; y++)
+                            texture += " {";
+                            mask += " {";
+                            byte t = 0, m = 0;
+                            for (int x = 0; x < image.Width; x++)
                             {
-                                texture += " {";
-                                mask += " {";
-                                byte t = 0, m = 0;
-                                for (int x = 0; x < bitmap.Width; x++)
-                                {
-                                    if ((x & 4) == 0)
-                                        t = 0;
-                                    if ((x & 8) == 0)
-                                        m = 0;
+                                if ((x & 4) == 0)
+                                    t = 0;
+                                if ((x & 8) == 0)
+                                    m = 0;
 
-                                    t = (byte)((t << 2) + bitmap.GetPixel(x, y).R / 64);
-                                    m = (byte)((m << 1) + bitmap.GetPixel(x, y).A == 0 ? 0 : 1);
+                                t = (byte)((t << 2) + image[x, y].R / 64);
+                                m = (byte)((m << 1) + image[x, y].A == 0 ? 0 : 1);
 
-                                    if ((x & 4) == 3)
-                                        texture += $" {t},";
-                                    if ((x & 8) == 7)
-                                        mask += $" {m},";
-                                }
-                                texture += " },";
-                                mask += " },";
+                                if ((x & 3) == 3)
+                                    texture += $" {t},";
+                                if ((x & 7) == 7)
+                                    mask += $" {m},";
                             }
-
-                            texture += " }";
-                            mask += " }";
-
-                            buffer += $"                 new Sprite(new byte[] {texture}, new byte[] {mask}),\n";
-                            */
+                            texture += " },";
+                            mask += " },";
                         }
+
+                        texture += " }";
+                        mask += " }";
+
+                        buffer += $"                 new Sprite(new byte[,] {texture}, new byte[,] {mask}),\n";
+                            
                     }
 
                     buffer +=
-                        "               };\n" +
-                        "           }\n" +
+                        "           };\n" +
                         "       }\n" +
                         "   }\n" +
                         "}\n";
