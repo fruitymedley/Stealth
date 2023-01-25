@@ -3,6 +3,7 @@ using System.IO;
 using System.Text;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
+using System.Linq;
 
 namespace Compiler
 {
@@ -34,13 +35,13 @@ namespace Compiler
                         "{\n" +
                         $"   class {Path.GetFileName(folder)}\n" +
                         "   {\n" +
-                        "       public static Sprite[] Sprites;\n" +
+                        "       public static Dictionary<int, Sprite> Sprites;\n" +
                         "       public static void Init()\n" +
                         "       {\n" +
-                        "           Sprites = new Sprite[]\n" +
+                        "           Sprites = new Dictionary<int, Sprite>\n" +
                         "           {\n";
 
-                    foreach (string asset in Directory.GetFiles(folder))
+                    foreach (string asset in Directory.GetFiles(folder).Where(a => int.TryParse(Path.GetFileNameWithoutExtension(a), out _)).OrderBy(a => int.Parse(Path.GetFileNameWithoutExtension(a))))
                     {
                         Image<Rgba32> image = Image.Load<Rgba32>(File.ReadAllBytes(asset));
                         
@@ -73,7 +74,7 @@ namespace Compiler
                         texture += " }";
                         mask += " }";
 
-                        buffer += $"                 new Sprite(new byte[,] {texture}, new byte[,] {mask}),\n";
+                        buffer += "                 { " + $"{int.Parse(Path.GetFileNameWithoutExtension(asset))}, new Sprite(new byte[,] {texture}, new byte[,] {mask})" + "},\n";
                             
                     }
 
