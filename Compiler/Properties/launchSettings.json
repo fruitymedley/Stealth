@@ -2,7 +2,7 @@
   "profiles": {
     "Compiler": {
       "commandName": "Project",
-      "commandLineArgs": "\"..\\..\\..\\..\\Stealth\\Stealth\""
+      "commandLineArgs": "\"..\\..\\..\\..\\Stealth\""
     }
   }
 }
