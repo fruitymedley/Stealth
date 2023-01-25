@@ -2,7 +2,7 @@
   "profiles": {
     "Compiler": {
       "commandName": "Project",
-      "commandLineArgs": "\"C:\\Users\\Joshua Todd\\source\\repos\\Stealth\\Stealth\""
+      "commandLineArgs": "\"..\\..\\..\\..\\Stealth\\Stealth\""
     }
   }
 }
