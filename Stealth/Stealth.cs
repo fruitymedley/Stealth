@@ -268,11 +268,10 @@ namespace Stealth
             Texture2D texture = new Texture2D(GraphicsDevice, SCREEN_WIDTH, SCREEN_HEIGHT);
             texture.SetData(colors);
 
-            SpriteBatch spriteBatch = new SpriteBatch(GraphicsDevice);
-            spriteBatch.Begin();
-            spriteBatch.Draw(texture, new Rectangle(new Point(0, 0), new Point(_graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight)), Color.White);
+            _spriteBatch.Begin();
+            _spriteBatch.Draw(texture, new Rectangle(new Point(0, 0), new Point(_graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight)), Color.White);
             //spriteBatch.DrawString(new SpriteFont(, $"FRAMERATE: {1 / (gameTime.TotalGameTime.TotalSeconds - lastGameTime):N2} FPS", new Vector2(), Color.Red);
-            spriteBatch.End();
+            _spriteBatch.End();
             lastGameTime = gameTime.TotalGameTime.TotalSeconds;
 
             base.Draw(gameTime);
