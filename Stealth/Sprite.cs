@@ -35,12 +35,4 @@ namespace Stealth
             return pixels[y, x];
         }
     }
-
-    public class Sprites
-    {
-        public sbyte[,] Texture;
-        public Point Location;
-
-        public Sprites() { }
-    }
 }
