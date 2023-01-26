@@ -17,5 +17,7 @@ namespace Stealth
             this.id = id;
             this.size = size;
         }
+
+        public Sprite Sprite { get => Assets.Item.Sprites[ID]; }
     }
 }
