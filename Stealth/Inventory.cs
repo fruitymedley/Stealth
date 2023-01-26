@@ -26,32 +26,28 @@ namespace Stealth
         public enum PickUpResult { empty, success, full }
         public PickUpResult PickUp()
         {
-            // Hash location
-            long key = (State.Player.Room << 32) + (State.Player.Y << 16) + State.Player.X;
+            // Get item
+            Item item = State.GetItem();
 
             // No item in spot
-            if (!State.Items.ContainsKey(key))
+            if (item == null)
                 return PickUpResult.empty;
 
             // Inventory is full
-            Item item = State.Items[key];
             if (State.Inventory.Size + item.Size > Inventory.CAPACITY)
                 return PickUpResult.full;
 
             // Put item into inventory
             State.Inventory.Items.Add(item);
-            State.Items.Remove(key);
+            State.RemoveItem();
             return PickUpResult.success;
         }
 
         public enum PutDownResult { empty, success, full }
         public PutDownResult PutDown()
         {
-            // Hash location
-            long key = (State.Player.Room << 32) + (State.Player.Y << 16) + State.Player.X;
-
-            // No item in spot
-            if (State.Items.ContainsKey(key))
+            // Item in spot
+            if (State.GetItem() != null)
                 return PutDownResult.full;
 
             // Nothing in hand
@@ -60,7 +56,7 @@ namespace Stealth
                 
             // Put item on floor
             Item item = State.Inventory.Items[State.Inventory.Selection];
-            State.Items[key] = item;
+            State.SetItem(item);
             State.Inventory.Items.Remove(item);
             State.Inventory.Selection = -1;
             return PutDownResult.success;

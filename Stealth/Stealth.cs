@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 namespace Stealth
 {
@@ -116,6 +117,10 @@ namespace Stealth
                 State.Player.Move(Animation.up);
             if (Keyboard.GetState().IsKeyDown(Keys.S))
                 State.Player.Move(Animation.down);
+            if (Keyboard.GetState().IsKeyDown(Keys.E))
+                PickUp();
+            if (Keyboard.GetState().IsKeyDown(Keys.Q))
+                PutDown();
 
             State.Player.Update(gameTime.ElapsedGameTime.TotalSeconds);
 
@@ -228,22 +233,26 @@ namespace Stealth
                         }
                     }
 
-                    //// Render sprites
-                    //foreach (Sprites sprite in Maps[State.Player.Room].Sprites)
-                    //{
-                    //    int i = (int)Math.Floor(Assets.Wall.Sprites[wall].Width * (((((double)CAMERA_WIDTH * x * INVERSE_SCREEN_WIDTH) - (CAMERA_WIDTH * 0.5)) * (CAMERA_DISTANCE + sprite.Location.Y) * INVERSE_CAMERA_DISTANCE) + (CAMERA_WIDTH * 0.5 - sprite.Location.X + xCam - CAMERA_WIDTH * 0.5)));
-                    //    int j = (int)(Assets.Wall.Sprites[wall].Height * (((double)y * INVERSE_SCREEN_HEIGHT - 0.5) * (CAMERA_DISTANCE + sprite.Location.Y) * INVERSE_CAMERA_DISTANCE + 0.5));
+                    // Render sprites
+                    foreach (KeyValuePair<uint, Item> kvp in State.GetItemsInRoom())
+                    {
+                        uint key = kvp.Key;
+                        sbyte itemX = (sbyte)(key & 0xFF);
+                        sbyte itemY = (sbyte)((key >> 8) & 0xFF);
+                        Item item = kvp.Value;
+                        short i = (short)Math.Floor(item.Sprite.Width * (((((double)CAMERA_WIDTH * x * INVERSE_SCREEN_WIDTH) - (CAMERA_WIDTH * 0.5)) * (CAMERA_DISTANCE + itemY) * INVERSE_CAMERA_DISTANCE) + (CAMERA_WIDTH * 0.5 - itemX + xCam - CAMERA_WIDTH * 0.5)));
+                        short j = (short)(item.Sprite.Height * (((double)y * INVERSE_SCREEN_HEIGHT - 0.5) * (CAMERA_DISTANCE + itemY) * INVERSE_CAMERA_DISTANCE + 0.5));
 
-                    //    if (i >= 0 && i < Assets.Wall.Sprites[wall].Width && j >= 0 && j < Assets.Wall.Sprites[wall].Height && sprite.Texture[j, i] >= 0 && ToDepth(sprite.Location.Y - 0.1) > depth[screenIdx])
-                    //    {
-                    //        screen[screenIdx] = sprite.Texture[j, i];
-                    //        depth[screenIdx] = ToDepth(sprite.Location.Y - 0.1);
-                    //    }
-                    //}
+                        if (i >= 0 && i < item.Sprite.Width && j >= 0 && j < item.Sprite.Height && item.Sprite.GetPixel(i, j) >= 0 && ToDepth(itemY - 0.1) > depth[screenIdx])
+                        {
+                            screen[screenIdx] = item.Sprite.GetPixel(i, j);
+                            depth[screenIdx] = ToDepth(itemY - 0.1);
+                        }
+                    }
 
                     // Render State.Player
                     {
-                        short i = (short)Math.Floor(State.Player.Sprite.Width + 8 * (((((double)CAMERA_WIDTH * x * INVERSE_SCREEN_WIDTH) - (CAMERA_WIDTH * 0.5)) * (CAMERA_DISTANCE + State.Player.Yfine) * INVERSE_CAMERA_DISTANCE) + (CAMERA_WIDTH * 0.5 - State.Player.Xfine + xCam - CAMERA_WIDTH * 0.5)));
+                        short i = (short)Math.Floor(State.Player.Sprite.Width + 8 * (((((double)CAMERA_WIDTH * x * INVERSE_SCREEN_WIDTH) - (CAMERA_WIDTH * 0.5)) * (CAMERA_DISTANCE + State.Player.Yfine) * INVERSE_CAMERA_DISTANCE) + (CAMERA_WIDTH * 0.5 - State.Player.Xfine + xCam - 1 - CAMERA_WIDTH * 0.5)));
                         short j = (short)(State.Player.Sprite.Height * (((double)y * INVERSE_SCREEN_HEIGHT - 0.5) * (CAMERA_DISTANCE + State.Player.Yfine) * INVERSE_CAMERA_DISTANCE + 0.5));
 
                         if (i >= 0 && i < State.Player.Sprite.Width && j >= 0 && j < State.Player.Sprite.Height && State.Player.Sprite.GetPixel(i, j) >= 0 && ToDepth(State.Player.Yfine) > depth[screenIdx])
