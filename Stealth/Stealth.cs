@@ -196,11 +196,11 @@ namespace Stealth
                         double xFloor = ((x + 0.5) * INVERSE_SCREEN_WIDTH - 0.5) * CAMERA_WIDTH * (CAMERA_DISTANCE + yFloor) * INVERSE_CAMERA_DISTANCE + xCam;
                         short iFloor = (short)Math.Floor(xFloor);
                         short jFloor = (short)Math.Floor(yFloor);
-                        short i = (short)(Assets.Floor.Sprites[Maps[State.Player.Room].Ceilings[jFloor, iFloor]].Width * (xFloor - Math.Floor(xFloor)));
-                        short j = (short)(Assets.Floor.Sprites[Maps[State.Player.Room].Ceilings[jFloor, iFloor]].Height * (yFloor - Math.Floor(yFloor)));
+                        short i = (short)(Assets.Floor.Sprites[Maps[State.Player.Room].Floors[jFloor, iFloor]].Width * (xFloor - Math.Floor(xFloor)));
+                        short j = (short)(Assets.Floor.Sprites[Maps[State.Player.Room].Floors[jFloor, iFloor]].Height * (yFloor - Math.Floor(yFloor)));
                         if (ToDepth(yFloor) > depth[screenIdx])
                         {
-                            screen[screenIdx] = Assets.Floor.Sprites[Maps[State.Player.Room].Ceilings[jFloor, iFloor]].GetPixel(i, j);
+                            screen[screenIdx] = Assets.Floor.Sprites[Maps[State.Player.Room].Floors[jFloor, iFloor]].GetPixel(i, j);
                             depth[screenIdx] = ToDepth(yFloor);
                         }
                     }
