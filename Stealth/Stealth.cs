@@ -243,12 +243,12 @@ namespace Stealth
 
                     // Render State.Player
                     {
-                        short i = (short)Math.Floor(Assets.Player.Sprites[State.Player.Frame].Width + 8 * (((((double)CAMERA_WIDTH * x * INVERSE_SCREEN_WIDTH) - (CAMERA_WIDTH * 0.5)) * (CAMERA_DISTANCE + State.Player.Yfine) * INVERSE_CAMERA_DISTANCE) + (CAMERA_WIDTH * 0.5 - State.Player.Xfine + xCam - CAMERA_WIDTH * 0.5)));
-                        short j = (short)(Assets.Player.Sprites[State.Player.Frame].Height * (((double)y * INVERSE_SCREEN_HEIGHT - 0.5) * (CAMERA_DISTANCE + State.Player.Yfine) * INVERSE_CAMERA_DISTANCE + 0.5));
+                        short i = (short)Math.Floor(State.Player.Sprite.Width + 8 * (((((double)CAMERA_WIDTH * x * INVERSE_SCREEN_WIDTH) - (CAMERA_WIDTH * 0.5)) * (CAMERA_DISTANCE + State.Player.Yfine) * INVERSE_CAMERA_DISTANCE) + (CAMERA_WIDTH * 0.5 - State.Player.Xfine + xCam - CAMERA_WIDTH * 0.5)));
+                        short j = (short)(State.Player.Sprite.Height * (((double)y * INVERSE_SCREEN_HEIGHT - 0.5) * (CAMERA_DISTANCE + State.Player.Yfine) * INVERSE_CAMERA_DISTANCE + 0.5));
 
-                        if (i >= 0 && i < Assets.Player.Sprites[State.Player.Frame].Width && j >= 0 && j < Assets.Player.Sprites[State.Player.Frame].Height && Assets.Player.Sprites[State.Player.Frame].GetPixel(i, j) >= 0 && ToDepth(State.Player.Yfine) > depth[screenIdx])
+                        if (i >= 0 && i < State.Player.Sprite.Width && j >= 0 && j < State.Player.Sprite.Height && State.Player.Sprite.GetPixel(i, j) >= 0 && ToDepth(State.Player.Yfine) > depth[screenIdx])
                         {
-                            screen[screenIdx] = Assets.Player.Sprites[State.Player.Frame].GetPixel(i, j);
+                            screen[screenIdx] = State.Player.Sprite.GetPixel(i, j);
                             depth[screenIdx] = ToDepth(State.Player.Yfine);
                         }
                     }

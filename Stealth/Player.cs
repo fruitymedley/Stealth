@@ -140,9 +140,9 @@ namespace Stealth
             }
         }
 
-        public short Frame
+        public Sprite Sprite
         {
-            get { return (short)((short)Direction + (Crouching ? 1 : 0) * 4); }
+            get { return Assets.Player.Sprites[(short)((short)Direction + (Crouching ? 1 : 0) * 4)]; }
         }
     }
 }
