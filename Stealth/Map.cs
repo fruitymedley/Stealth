@@ -66,7 +66,7 @@ namespace Stealth
 
     public partial class Stealth
     {
-        public enum MapList { attic, COUNT };
+        public enum MapList { attic, closet, COUNT };
         public static Map[] Maps = new Map[(int)MapList.COUNT];
 
         public static void InitializeMaps()
@@ -108,6 +108,32 @@ namespace Stealth
                     { 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6 },
                 },
                 palettesType: PalettesTypes.deepBlue
+            );
+
+            Maps[(int)MapList.closet] = new Map
+            (
+                walls: new sbyte[,]
+                {
+                    {12,-1,-1,-1,12,},
+                    {12,-1,-1,-1,12,},
+                    {12,-1,-1,-1,12,},
+                    {13,13,14,13,13,},
+                },
+                ceilings: new sbyte[,]
+                {
+                    { 3, 3, 3, 3, 3,},
+                    { 3, 3, 3, 3, 3,},
+                    { 3, 3, 3, 3, 3,},
+                    { 3, 3, 3, 3, 3,},
+                },
+                floors: new sbyte[,]
+                {
+                    { 2, 2, 2, 2, 2,},
+                    { 2, 2, 2, 2, 2,},
+                    { 2, 2, 2, 2, 2,},
+                    { 2, 2, 2, 2, 2,},
+                },
+                palettesType: PalettesTypes.gold
             );
         }
     }

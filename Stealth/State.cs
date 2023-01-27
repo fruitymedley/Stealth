@@ -17,6 +17,7 @@ namespace Stealth
             Inventory = new Inventory();
             Items = new Dictionary<uint, Item>
             {
+                // Attic
                 { 0x00000201, new Item(5, 1, null) },
                 { 0x00000202, new Item(6, 1, null) },
                 { 0x00000203, new Item(7, 1, null) },
@@ -59,6 +60,22 @@ namespace Stealth
                 { 0x00000607, new Item(13, 1, null) },
                 { 0x00000608, new Item(11, 1, null) },
                 { 0x00000609, new Item(13, 1, null) },
+
+                // Closet
+                { 0x000100FE, new Item(4, 1, null) },
+                { 0x000100FF, new Item(4, 1, null) },
+                { 0x00010000, new Item(4, 1, null) },
+                { 0x00010001, new Item(14, 1, null) },
+                { 0x00010002, new Item(15, 1, null) },
+                { 0x00010003, new Item(16, 1, null) },
+                { 0x00010004, new Item(4, 1, null) },
+                { 0x00010005, new Item(4, 1, null) },
+                { 0x00010006, new Item(4, 1, null) },
+                { 0x00010101, new Item(17, 1, null) },
+                { 0x00010102, new Item(19, 1, null) },
+                { 0x00010103, new Item(18, 1, null) },
+                { 0x00010201, new Item(17, 1, null) },
+                { 0x00010203, new Item(18, 1, null) },
             };
         }
 
