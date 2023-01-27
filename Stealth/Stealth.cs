@@ -38,6 +38,8 @@ namespace Stealth
         private double[] xVelInit;
         private double[] yVelInit;
 
+        private IEnumerable<KeyValuePair<uint, Item>> items;
+
         public Stealth()
         {
             _graphics = new GraphicsDeviceManager(this);
@@ -58,7 +60,7 @@ namespace Stealth
             // TODO: Add your initialization logic here
             _graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
             _graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
-            //_graphics.IsFullScreen = true;
+            _graphics.IsFullScreen = true;
             _graphics.ApplyChanges();
 
             lastGameTime = 0;
@@ -90,6 +92,8 @@ namespace Stealth
                 xVelInit[x] = VEL * ((xPosInit[x] - CAMERA_WIDTH * 0.5) * inverseDist);
                 yVelInit[x] = VEL * CAMERA_DISTANCE * inverseDist;
             }
+
+            items = State.GetItemsInRoom();
 
             base.Initialize();
         }
@@ -139,7 +143,7 @@ namespace Stealth
             GraphicsDevice.Clear(Color.Black);
 
             short[] screen = new short[SCREEN_HEIGHT * SCREEN_WIDTH];
-            float[] depth = new float[SCREEN_HEIGHT * SCREEN_WIDTH];
+            double[] depth = Enumerable.Repeat(double.MaxValue, SCREEN_HEIGHT * SCREEN_WIDTH).ToArray();
 
             // Declare vars
             double xPos;
@@ -167,7 +171,7 @@ namespace Stealth
                 }
 
                 int wall = 0;
-                if (xPos >= 0 && xPos < Maps[State.Player.Room].Width && yPos > 0 && yPos < Maps[State.Player.Room].Height)
+                if (xPos >= 0 && xPos < Maps[State.Player.Room].Width && yPos >= 0 && yPos < Maps[State.Player.Room].Height)
                 {
                     wall = Maps[State.Player.Room].Walls[(int)yPos, (int)xPos];
                 }
@@ -182,6 +186,19 @@ namespace Stealth
 
                 
                 int height = (int)(SCREEN_HEIGHT * CAMERA_DISTANCE / (CAMERA_DISTANCE + yPos));
+
+                // Shortlist sprites
+                List<KeyValuePair<uint, Item>> shortItems = new List<KeyValuePair<uint, Item>>();
+                foreach (KeyValuePair<uint, Item> kvp in items)
+                {
+                    uint key = kvp.Key;
+                    sbyte itemX = (sbyte)(key & 0xFF);
+                    sbyte itemY = (sbyte)((key >> 8) & 0xFF);
+                    Item item = kvp.Value;
+                    short i = (short)Math.Floor(item.Sprite.Width * (((((double)CAMERA_WIDTH * x * INVERSE_SCREEN_WIDTH) - (CAMERA_WIDTH * 0.5)) * (CAMERA_DISTANCE + itemY) * INVERSE_CAMERA_DISTANCE) + (CAMERA_WIDTH * 0.5 - itemX + xCam - CAMERA_WIDTH * 0.5)));
+                    if (i >= 0 && i < item.Sprite.Width)
+                        shortItems.Add(kvp);
+                }
 
                 // Render play space
                 for (int y = 0; y < SCREEN_HEIGHT; y++)
@@ -198,10 +215,10 @@ namespace Stealth
                         short jFloor = (short)Math.Floor(yFloor);
                         short i = (short)(Assets.Floor.Sprites[Maps[State.Player.Room].Floors[jFloor, iFloor]].Width * (xFloor - Math.Floor(xFloor)));
                         short j = (short)(Assets.Floor.Sprites[Maps[State.Player.Room].Floors[jFloor, iFloor]].Height * (yFloor - Math.Floor(yFloor)));
-                        if (ToDepth(yFloor) > depth[screenIdx])
+                        if (yFloor < depth[screenIdx])
                         {
                             screen[screenIdx] = Assets.Floor.Sprites[Maps[State.Player.Room].Floors[jFloor, iFloor]].GetPixel(i, j);
-                            depth[screenIdx] = ToDepth(yFloor);
+                            depth[screenIdx] = yFloor;
                         }
                     }
                     // Render ceilings
@@ -214,10 +231,10 @@ namespace Stealth
                         short jCeiling = (short)Math.Floor(yCeiling);
                         short iFine = (short)(Assets.Ceiling.Sprites[Maps[State.Player.Room].Ceilings[jCeiling, iCeiling]].Width * (xCeiling - Math.Floor(xCeiling)));
                         short jFine = (short)(Assets.Ceiling.Sprites[Maps[State.Player.Room].Ceilings[jCeiling, iCeiling]].Height * (yCeiling - Math.Floor(yCeiling)));
-                        if (ToDepth(yCeiling) > depth[screenIdx])
+                        if (yCeiling < depth[screenIdx])
                         {
                             screen[screenIdx] = Assets.Ceiling.Sprites[Maps[State.Player.Room].Ceilings[jCeiling, iCeiling]].GetPixel(iFine, jFine);
-                            depth[screenIdx] = ToDepth(yCeiling);
+                            depth[screenIdx] = yCeiling;
                         }
                     }
                     // Render Walls
@@ -226,41 +243,44 @@ namespace Stealth
                         short j = (short)(Assets.Wall.Sprites[wall].Height * (y - (SCREEN_HEIGHT - height) * 0.5) / height);
                         short i = orientation ? (short)(Assets.Wall.Sprites[wall].Width * (xPos - Math.Floor(xPos))) : (short)(Assets.Wall.Sprites[wall].Width * (yPos - Math.Floor(yPos)));
                         j = Math.Max(Math.Min(j, (short)(Assets.Wall.Sprites[wall].Height-1)), (short)0);
-                        if (ToDepth(yPos) > depth[screenIdx])
+                        if (yPos < depth[screenIdx])
                         {
                             screen[screenIdx] = Assets.Wall.Sprites[wall].GetPixel(i, j);
-                            depth[screenIdx] = ToDepth(yPos);
+                            depth[screenIdx] = yPos;
                         }
                     }
 
                     // Render sprites
-                    foreach (KeyValuePair<uint, Item> kvp in State.GetItemsInRoom())
+                    foreach (KeyValuePair<uint, Item> kvp in shortItems)
                     {
                         uint key = kvp.Key;
                         sbyte itemX = (sbyte)(key & 0xFF);
                         sbyte itemY = (sbyte)((key >> 8) & 0xFF);
+                        if (itemY-0.1 > depth[screenIdx])
+                            break;
                         Item item = kvp.Value;
                         short i = (short)Math.Floor(item.Sprite.Width * (((((double)CAMERA_WIDTH * x * INVERSE_SCREEN_WIDTH) - (CAMERA_WIDTH * 0.5)) * (CAMERA_DISTANCE + itemY) * INVERSE_CAMERA_DISTANCE) + (CAMERA_WIDTH * 0.5 - itemX + xCam - CAMERA_WIDTH * 0.5)));
                         short j = (short)(item.Sprite.Height * (((double)y * INVERSE_SCREEN_HEIGHT - 0.5) * (CAMERA_DISTANCE + itemY) * INVERSE_CAMERA_DISTANCE + 0.5));
 
-                        if (i >= 0 && i < item.Sprite.Width && j >= 0 && j < item.Sprite.Height && item.Sprite.GetPixel(i, j) >= 0 && ToDepth(itemY - 0.1) > depth[screenIdx])
+                        if (i >= 0 && i < item.Sprite.Width && j >= 0 && j < item.Sprite.Height && item.Sprite.GetPixel(i, j) >= 0 && itemY - 0.1 < depth[screenIdx])
                         {
                             screen[screenIdx] = item.Sprite.GetPixel(i, j);
-                            depth[screenIdx] = ToDepth(itemY - 0.1);
+                            depth[screenIdx] = itemY - 0.1;
+                            break;
                         }
                     }
 
-                    // Render State.Player
-                    {
-                        short i = (short)Math.Floor(State.Player.Sprite.Width + 8 * (((((double)CAMERA_WIDTH * x * INVERSE_SCREEN_WIDTH) - (CAMERA_WIDTH * 0.5)) * (CAMERA_DISTANCE + State.Player.Yfine) * INVERSE_CAMERA_DISTANCE) + (xCam - State.Player.Xfine - 1)));
-                        short j = (short)(State.Player.Sprite.Height * (((double)y * INVERSE_SCREEN_HEIGHT - 0.5) * (CAMERA_DISTANCE + State.Player.Yfine) * INVERSE_CAMERA_DISTANCE + 0.5));
+                    //// Render State.Player
+                    //{
+                    //    short i = (short)Math.Floor(State.Player.Sprite.Width + 8 * (((((double)CAMERA_WIDTH * x * INVERSE_SCREEN_WIDTH) - (CAMERA_WIDTH * 0.5)) * (CAMERA_DISTANCE + State.Player.Yfine) * INVERSE_CAMERA_DISTANCE) + (xCam - State.Player.Xfine - 1)));
+                    //    short j = (short)(State.Player.Sprite.Height * (((double)y * INVERSE_SCREEN_HEIGHT - 0.5) * (CAMERA_DISTANCE + State.Player.Yfine) * INVERSE_CAMERA_DISTANCE + 0.5));
 
-                        if (i >= 0 && i < State.Player.Sprite.Width && j >= 0 && j < State.Player.Sprite.Height && State.Player.Sprite.GetPixel(i, j) >= 0 && ToDepth(State.Player.Yfine) > depth[screenIdx])
-                        {
-                            screen[screenIdx] = State.Player.Sprite.GetPixel(i, j);
-                            depth[screenIdx] = ToDepth(State.Player.Yfine);
-                        }
-                    }
+                    //    if (i >= 0 && i < State.Player.Sprite.Width && j >= 0 && j < State.Player.Sprite.Height && State.Player.Sprite.GetPixel(i, j) >= 0 && State.Player.Yfine < depth[screenIdx])
+                    //    {
+                    //        screen[screenIdx] = State.Player.Sprite.GetPixel(i, j);
+                    //        depth[screenIdx] = State.Player.Yfine;
+                    //    }
+                    //}
                 }
             }
 
@@ -281,14 +301,10 @@ namespace Stealth
             _spriteBatch.Draw(texture, new Rectangle(new Point(0, 0), new Point(_graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight)), Color.White);
             //spriteBatch.DrawString(new SpriteFont(, $"FRAMERATE: {1 / (gameTime.TotalGameTime.TotalSeconds - lastGameTime):N2} FPS", new Vector2(), Color.Red);
             _spriteBatch.End();
+            Debug.WriteLine($"FRAMERATE: {1 / (gameTime.TotalGameTime.TotalSeconds - lastGameTime):N2} FPS");
             lastGameTime = gameTime.TotalGameTime.TotalSeconds;
 
             base.Draw(gameTime);
-        }
-
-        private float ToDepth(double depth)
-        {
-            return (float)Math.Exp(-depth);
         }
     }
 }
