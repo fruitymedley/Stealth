@@ -17,7 +17,48 @@ namespace Stealth
             Inventory = new Inventory();
             Items = new Dictionary<uint, Item>
             {
-                { 0x00000101, new Item(0, 1, null) }
+                { 0x00000201, new Item(5, 1, null) },
+                { 0x00000202, new Item(6, 1, null) },
+                { 0x00000203, new Item(7, 1, null) },
+                { 0x00000204, new Item(1, 1, null) },
+                { 0x00000206, new Item(1, 1, null) },
+                { 0x00000208, new Item(1, 1, null) },
+                { 0x0000020A, new Item(1, 1, null) },
+                { 0x0000020C, new Item(1, 1, null) },
+                { 0x0000020E, new Item(1, 1, null) },
+                { 0x00000210, new Item(1, 1, null) },
+                { 0x00000212, new Item(1, 1, null) },
+                { 0x00000502, new Item(3, 1, null) },
+                { 0x00000504, new Item(3, 1, null) },
+                { 0x00000506, new Item(3, 1, null) },
+                { 0x00000508, new Item(3, 1, null) },
+                { 0x0000050A, new Item(3, 1, null) },
+                { 0x0000050C, new Item(3, 1, null) },
+                { 0x0000050E, new Item(3, 1, null) },
+                { 0x00000510, new Item(3, 1, null) },
+                { 0x00000512, new Item(3, 1, null) },
+                { 0x00000302, new Item(2, 1, null) },
+                { 0x00000312, new Item(2, 1, null) },
+                { 0x00000104, new Item(8, 1, null) },
+                { 0x00000105, new Item(9, 1, null) },
+                { 0x00000106, new Item(10, 1, null) },
+                { 0x00000006, new Item(8, 1, null) },
+                { 0x00000007, new Item(9, 1, null) },
+                { 0x00000008, new Item(10, 1, null) },
+                { 0x00000108, new Item(8, 1, null) },
+                { 0x00000109, new Item(9, 1, null) },
+                { 0x0000010A, new Item(10, 1, null) },
+                { 0x0000010B, new Item(8, 1, null) },
+                { 0x0000010C, new Item(9, 1, null) },
+                { 0x0000010D, new Item(10, 1, null) },
+                { 0x00000601, new Item(11, 1, null) },
+                { 0x00000602, new Item(12, 1, null) },
+                { 0x00000603, new Item(13, 1, null) },
+                { 0x00000605, new Item(11, 1, null) },
+                { 0x00000606, new Item(12, 1, null) },
+                { 0x00000607, new Item(13, 1, null) },
+                { 0x00000608, new Item(11, 1, null) },
+                { 0x00000609, new Item(13, 1, null) },
             };
         }
 
@@ -40,7 +81,7 @@ namespace Stealth
 
         public IEnumerable<KeyValuePair<uint, Item>> GetItemsInRoom()
         {
-            return Items.Where(i => (i.Key >> 16) == Player.Room);
+            return Items.Where(kvp => (kvp.Key >> 16) == Player.Room).OrderBy(kvp => kvp.Key);
         }
     }
 }
