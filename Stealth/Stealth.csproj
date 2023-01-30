@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
@@ -31,4 +31,7 @@
   <ItemGroup>
     <Folder Include="Assets\" />
   </ItemGroup>
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="&quot;$(SolutionDir)Compiler\bin\$(ConfigurationName)\net5.0\Compiler.exe&quot; &quot;$(SolutionDir)Stealth&quot;" />
+  </Target>
 </Project>

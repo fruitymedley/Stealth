@@ -21,9 +21,9 @@ namespace Compiler
 
             string output = args[0];
 
-            foreach (string folder in Directory.GetDirectories("Assets"))
+            foreach (string folder in Directory.GetDirectories(Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location), "Assets")))
             {
-                using (FileStream file = File.Create($"{output}\\{folder}.cs"))
+                using (FileStream file = File.Create(Path.Combine(output, Path.Combine("Assets", $"{Path.GetFileName(folder)}.cs"))))
                 {
                     string buffer =
                         "using System;\n" +
