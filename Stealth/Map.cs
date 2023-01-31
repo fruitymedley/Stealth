@@ -42,6 +42,13 @@ namespace Stealth
             set => floors = value;
         }
 
+        private byte[,] collision;
+        public byte[,] Collision
+        {
+            get => collision;
+            set => collision = value;
+        }
+
         public Stealth.PalettesTypes PalettesType;
 
         private double cameraXMin;
@@ -49,15 +56,16 @@ namespace Stealth
         private double cameraXMax;
         public double CameraXMax { get => cameraXMax; }
 
-        public Map(sbyte[,] walls = null, sbyte[,] ceilings = null, sbyte[,] floors = null, 
+        public Map(sbyte[,] walls = null, sbyte[,] ceilings = null, sbyte[,] floors = null, byte[,] collision = null,
             Stealth.PalettesTypes palettesType = Stealth.PalettesTypes.basic)
         {
             Walls = walls;
             Ceilings = ceilings;
             Floors = floors;
+            Collision = collision;
 
-            if (walls.GetLength(0) != ceilings.GetLength(0) || walls.GetLength(0) != floors.GetLength(0)
-                || walls.GetLength(1) != ceilings.GetLength(1) || walls.GetLength(1) != floors.GetLength(1))
+            if (walls.GetLength(0) != ceilings.GetLength(0) || walls.GetLength(0) != floors.GetLength(0) || walls.GetLength(0) != collision.GetLength(0)
+                || walls.GetLength(1) != ceilings.GetLength(1) || walls.GetLength(1) != floors.GetLength(1) || walls.GetLength(1) != collision.GetLength(1))
                 throw new ArgumentException("Arguments walls, ceilings, and floors must be arrays of equal sizes");
 
             PalettesType = palettesType;
@@ -66,7 +74,7 @@ namespace Stealth
 
     public partial class Stealth
     {
-        public enum MapList { attic, closet, COUNT };
+        public enum MapList { attic, closet, bathroom, COUNT };
         public static Map[] Maps = new Map[(int)MapList.COUNT];
 
         public static void InitializeMaps()
@@ -76,13 +84,13 @@ namespace Stealth
             (
                 walls: new sbyte[,]
                 {
-                    { 5,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, 4, 4,-1,-1,-1,-1, 5 },
-                    { 6,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, 6 },
-                    { 7,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, 7 },
+                    { 5,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, 4, 4,-1,-1,-1,-1,11 },
+                    { 6,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,10 },
+                    { 7,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, 9 },
                     { 8,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, 8 },
-                    { 9,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, 9 },
-                    {10,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,10 },
-                    {11,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,11 },
+                    { 9,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, 7 },
+                    {10,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, 6 },
+                    {11,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, 5 },
                     { 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4 },
                 },
                 ceilings: new sbyte[,]
@@ -106,6 +114,17 @@ namespace Stealth
                     { 6, 6, 4, 6, 4, 6, 4, 6, 4, 6, 4, 6, 4, 6, 4, 6, 4, 6, 4, 6, 6 },
                     { 6, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 6 },
                     { 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6 },
+                },
+                collision: new byte[,]
+                {
+                    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+                    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+                    { 0, 0, 0, 0, 9, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,12, 0, },
+                    { 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, },
+                    { 0, 0, 0, 0, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 6, 0, },
+                    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+                    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+                    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
                 },
                 palettesType: PalettesTypes.deepBlue
             );
@@ -133,7 +152,47 @@ namespace Stealth
                     { 2, 2, 2, 2, 2,},
                     { 2, 2, 2, 2, 2,},
                 },
+                collision: new byte[,]
+                {
+                    { 0,27,24,30, 0, },
+                    { 0, 0, 5, 0, 0, },
+                    { 0, 0, 7, 0, 0, },
+                    { 0, 0, 0, 0, 0, },
+                },
                 palettesType: PalettesTypes.gold
+            );
+
+            Maps[(int)MapList.bathroom] = new Map
+            (
+                walls: new sbyte[,]
+                {
+                    {15,-1,-1,-1,-1,15,},
+                    {15,-1,-1,-1,-1,15,},
+                    {15,-1,-1,-1,-1,15,},
+                    {15,15,15,15,15,15,},
+                },
+                ceilings: new sbyte[,]
+                {
+                    { 3, 3, 3, 3, 3, 3,},
+                    { 3, 3, 3, 3, 3, 3,},
+                    { 3, 3, 3, 3, 3, 3,},
+                    { 3, 3, 3, 3, 3, 3,},
+                },
+                floors: new sbyte[,]
+                {
+                    {19,19,19,19,19,19,},
+                    {19,19,19,19,19,19,},
+                    {19,19,19,19,19,19,},
+                    {19,19,19,19,19,19,},
+                },
+                collision: new byte[,]
+                {
+                    { 0, 9,12, 0, 0, 0, },
+                    { 0, 3, 6, 0, 0, 0, },
+                    { 0, 0, 0, 0, 0, 0, },
+                    { 0, 0, 0, 0, 0, 0, },
+                },
+                palettesType: PalettesTypes.lime
             );
         }
     }

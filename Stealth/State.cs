@@ -76,6 +76,19 @@ namespace Stealth
                 { 0x00010103, new Item(18, 1, null) },
                 { 0x00010201, new Item(17, 1, null) },
                 { 0x00010203, new Item(18, 1, null) },
+
+                // Bathroom
+                { 0x000200FE, new Item(4, 1, null) },
+                { 0x000200FF, new Item(4, 1, null) },
+                { 0x00020000, new Item(4, 1, null) },
+                { 0x00020003, new Item(21, 1, null) },
+                { 0x00020004, new Item(22, 1, null) },
+                { 0x00020005, new Item(4, 1, null) },
+                { 0x00020006, new Item(4, 1, null) },
+                { 0x00020007, new Item(4, 1, null) },
+                { 0x00020202, new Item(23, 1, null) },
+                { 0x00020201, new Item(24, 1, null) },
+                { 0x00020301, new Item(25, 1, null) },
             };
         }
 

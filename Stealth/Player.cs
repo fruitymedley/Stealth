@@ -58,7 +58,7 @@ namespace Stealth
             Distance = 0;
         }
 
-        public void Move(Animation animation)
+        public void Move(Animation animation, byte[,] collision)
         {
             if (Animation != Animation.still)
                 return;
@@ -69,28 +69,28 @@ namespace Stealth
             switch (animation)
             {
                 case Animation.left:
-                    if (Direction == Direction.left || Running)
+                    if ((collision[Y,X] & 0x01) == 0 && (Direction == Direction.left || Running) && ((collision[Y,X-1] & 0x10) == 0 || Crouching))
                         X -= 1;
                     else
                         Animation = Animation.turn;
                     Direction = Direction.left;
                     break;
                 case Animation.up:
-                    if (Direction == Direction.up || Running)
+                    if ((collision[Y, X] & 0x02) == 0 && (Direction == Direction.up || Running) && ((collision[Y + 1, X] & 0x10) == 0 || Crouching))
                         Y += 1;
                     else
                         Animation = Animation.turn;
                     Direction = Direction.up;
                     break;
                 case Animation.right:
-                    if (Direction == Direction.right || Running)
+                    if ((collision[Y, X] & 0x04) == 0 && (Direction == Direction.right || Running) && ((collision[Y, X + 1] & 0x10) == 0 || Crouching))
                         X += 1;
                     else
                         Animation = Animation.turn;
                     Direction = Direction.right;
                     break;
                 case Animation.down:
-                    if (Direction == Direction.down || Running)
+                    if ((collision[Y, X] & 0x08) == 0 && (Direction == Direction.down || Running) && ((collision[Y - 1, X] & 0x10) == 0 || Crouching))
                         Y -= 1;
                     else
                         Animation = Animation.turn;
@@ -99,12 +99,15 @@ namespace Stealth
             }
         }
 
-        public void Crouch(bool crouch)
+        public void Crouch(bool crouch, byte[,] collision)
         {
             if (Animation != Animation.still)
                 return;
 
             if ((crouch && Crouching) || (!crouch && !Crouching))
+                return;
+
+            if (!crouch && (collision[Y, X] & 0x10) != 0)
                 return;
 
             Crouching = crouch;

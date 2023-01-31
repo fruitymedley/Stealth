@@ -118,17 +118,17 @@ namespace Stealth
                 Exit();
 
             // TODO: Add your update logic here
-            State.Player.Crouch(Keyboard.GetState().IsKeyDown(Keys.LeftControl));
+            byte[,] collision = Maps[State.Player.Room].Collision;
+            State.Player.Crouch(Keyboard.GetState().IsKeyDown(Keys.LeftControl), collision);
             State.Player.Run(Keyboard.GetState().IsKeyDown(Keys.LeftShift));
-            byte collision = Maps[State.Player.Room].Collision[State.Player.Y, State.Player.X];
-            if (Keyboard.GetState().IsKeyDown(Keys.A) && (collision & 0x01) == 0)
-                State.Player.Move(Animation.left);
-            if (Keyboard.GetState().IsKeyDown(Keys.D) && (collision & 0x02) == 0)
-                State.Player.Move(Animation.right);
-            if (Keyboard.GetState().IsKeyDown(Keys.W) && (collision & 0x04) == 0)
-                State.Player.Move(Animation.up);
-            if (Keyboard.GetState().IsKeyDown(Keys.S) && (collision & 0x08) == 0)
-                State.Player.Move(Animation.down);
+            if (Keyboard.GetState().IsKeyDown(Keys.A))
+                State.Player.Move(Animation.left, collision);
+            if (Keyboard.GetState().IsKeyDown(Keys.W))
+                State.Player.Move(Animation.up, collision);
+            if (Keyboard.GetState().IsKeyDown(Keys.D))
+                State.Player.Move(Animation.right, collision);
+            if (Keyboard.GetState().IsKeyDown(Keys.S))
+                State.Player.Move(Animation.down, collision);
             if (Keyboard.GetState().IsKeyDown(Keys.E))
                 PickUp();
             if (Keyboard.GetState().IsKeyDown(Keys.Q))
