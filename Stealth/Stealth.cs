@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace Stealth
 {
@@ -55,12 +56,17 @@ namespace Stealth
             IsMouseVisible = true;
         }
 
+        [DllImport("SDL2.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void SDL_MaximizeWindow(IntPtr window);
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
             _graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
             _graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
-            _graphics.IsFullScreen = true;
+            Window.AllowUserResizing = true;
+            //_graphics.IsFullScreen = true;
+            Window.Position = new Point(0, 0);
+            SDL_MaximizeWindow(Window.Handle);
             _graphics.ApplyChanges();
 
             lastGameTime = 0;
@@ -71,7 +77,7 @@ namespace Stealth
 
             State = new State();
 
-            State.Player.Room = 1;
+            State.Player.Room = (int)MapList.closet;
             State.Player.X = (sbyte)(Maps[State.Player.Room].Width / 2);
 
             // Initialize graphics
@@ -114,13 +120,14 @@ namespace Stealth
             // TODO: Add your update logic here
             State.Player.Crouch(Keyboard.GetState().IsKeyDown(Keys.LeftControl));
             State.Player.Run(Keyboard.GetState().IsKeyDown(Keys.LeftShift));
-            if (Keyboard.GetState().IsKeyDown(Keys.A))
+            byte collision = Maps[State.Player.Room].Collision[State.Player.Y, State.Player.X];
+            if (Keyboard.GetState().IsKeyDown(Keys.A) && (collision & 0x01) == 0)
                 State.Player.Move(Animation.left);
-            if (Keyboard.GetState().IsKeyDown(Keys.D))
+            if (Keyboard.GetState().IsKeyDown(Keys.D) && (collision & 0x02) == 0)
                 State.Player.Move(Animation.right);
-            if (Keyboard.GetState().IsKeyDown(Keys.W))
+            if (Keyboard.GetState().IsKeyDown(Keys.W) && (collision & 0x04) == 0)
                 State.Player.Move(Animation.up);
-            if (Keyboard.GetState().IsKeyDown(Keys.S))
+            if (Keyboard.GetState().IsKeyDown(Keys.S) && (collision & 0x08) == 0)
                 State.Player.Move(Animation.down);
             if (Keyboard.GetState().IsKeyDown(Keys.E))
                 PickUp();
@@ -242,7 +249,7 @@ namespace Stealth
                     else
                     {
                         short j = (short)(Assets.Wall.Sprites[wall].Height * (y - (SCREEN_HEIGHT - height) * 0.5) / height);
-                        short i = orientation ? (short)(Assets.Wall.Sprites[wall].Width * (xPos - Math.Floor(xPos))) : (short)(Assets.Wall.Sprites[wall].Width * (yPos - Math.Floor(yPos)));
+                        short i = orientation ? (short)(Assets.Wall.Sprites[wall].Width * (xPos - Math.Floor(xPos))) : (short)(Assets.Wall.Sprites[wall].Width * ((xVel < 0) ? (yPos - Math.Floor(yPos)) : (1 - yPos + Math.Floor(yPos))));
                         j = Math.Max(Math.Min(j, (short)(Assets.Wall.Sprites[wall].Height-1)), (short)0);
                         if (yPos < depth[screenIdx])
                         {
@@ -299,7 +306,7 @@ namespace Stealth
             texture.SetData(colors);
 
             _spriteBatch.Begin();
-            _spriteBatch.Draw(texture, new Rectangle(new Point(0, 0), new Point(_graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight)), Color.White);
+            _spriteBatch.Draw(texture, new Rectangle(new Point(0, 0), new Point(Window.ClientBounds.Width, Window.ClientBounds.Height)), Color.White);
             //spriteBatch.DrawString(new SpriteFont(, $"FRAMERATE: {1 / (gameTime.TotalGameTime.TotalSeconds - lastGameTime):N2} FPS", new Vector2(), Color.Red);
             _spriteBatch.End();
             Debug.WriteLine($"FRAMERATE: {1 / (gameTime.TotalGameTime.TotalSeconds - lastGameTime):N2} FPS");
