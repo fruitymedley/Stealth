@@ -77,7 +77,7 @@ namespace Stealth
 
             State = new State();
 
-            State.Player.Room = (int)MapList.closet;
+            State.Player.Room = (int)MapList.bathroom;
             State.Player.X = (sbyte)(Maps[State.Player.Room].Width / 2);
 
             // Initialize graphics
