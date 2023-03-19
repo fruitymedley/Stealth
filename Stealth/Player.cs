@@ -165,7 +165,7 @@ namespace Stealth
                 {
                     animation = (short)(Crouching ? 4 : (Running ? 3 : 2));
                     int which = (X + Y) % 2;
-                    frame = (short)((int)((1 - Distance) * 3) % 3 + 3 * which);
+                    frame = (short)((int)((1 - Distance) * 3) % 3 + 4 * which);
                 }
                 return Assets.Player.Sprites[(short)(animation * 32 + (short)Direction * 8 + frame)];
             }
