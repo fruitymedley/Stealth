@@ -9,6 +9,8 @@ namespace Stealth
     
     public class Player
     {
+        private double timer;
+
         public Direction Direction { get; set; }
         public Animation Animation { get; set; }
         public bool Crouching { get; set; }
@@ -125,6 +127,7 @@ namespace Stealth
 
         public void Update(double seconds)
         {
+            timer += seconds;
             double speed = 3;
             if (Animation == Animation.crouch || Animation == Animation.stand)
                 speed = 4;
@@ -139,10 +142,33 @@ namespace Stealth
             if (Distance <= 0)
             {
                 Distance = 0;
-                Animation = Animation.still;
+                if (Animation != Animation.still)
+                {
+                    timer = 0;
+                    Animation = Animation.still;
+                }
             }
         }
 
-        public Sprite Sprite { get => Assets.Player.Sprites[(short)((short)Direction + (Crouching ? 1 : 0) * 4)]; }
+        public Sprite Sprite 
+        {
+            get
+            {
+                short animation = 0;
+                short frame = 0;
+                if (Animation == Animation.still || Animation == Animation.turn || Animation == Animation.crouch)
+                {
+                    animation = (short)(Crouching ? 1 : 0);
+                    frame = (short)((int)(timer * 4) % 8);
+                }
+                else
+                {
+                    animation = (short)(Crouching ? 4 : (Running ? 3 : 2));
+                    int which = (X + Y) % 2;
+                    frame = (short)((int)((1 - Distance) * 3) % 3 + 3 * which);
+                }
+                return Assets.Player.Sprites[(short)(animation * 32 + (short)Direction * 8 + frame)];
+            }
+        }
     }
 }

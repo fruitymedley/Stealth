@@ -89,6 +89,16 @@ namespace Stealth
                 { 0x00020202, new Item(23, 1, null) },
                 { 0x00020201, new Item(24, 1, null) },
                 { 0x00020301, new Item(25, 1, null) },
+
+                // Hallway
+                { 0x000300FD, new Item(4, 1, null) },
+                { 0x000300FE, new Item(4, 1, null) },
+                { 0x000300FF, new Item(4, 1, null) },
+                { 0x00030000, new Item(4, 1, null) },
+                { 0x00030003, new Item(4, 1, null) },
+                { 0x00030004, new Item(4, 1, null) },
+                { 0x00030005, new Item(4, 1, null) },
+                { 0x00030006, new Item(4, 1, null) },
             };
         }
 
