@@ -99,6 +99,21 @@ namespace Stealth
                 { 0x00030004, new Item(4, 1, null) },
                 { 0x00030005, new Item(4, 1, null) },
                 { 0x00030006, new Item(4, 1, null) },
+
+                // Bedroom
+                { 0x00040000, new Item(4, 1, null) },
+                { 0x00040003, new Item(26, 1, null) },
+                { 0x00040005, new Item(26, 1, null) },
+                { 0x00040203, new Item(27, 1, null) },
+                { 0x00040204, new Item(29, 1, null) },
+                { 0x00040205, new Item(28, 1, null) },
+                { 0x00040303, new Item(30, 1, null) },
+                { 0x00040304, new Item(31, 1, null) },
+                { 0x00040305, new Item(32, 1, null) },
+                { 0x00040503, new Item(33, 1, null) },
+                { 0x00040504, new Item(34, 1, null) },
+                { 0x00040505, new Item(35, 1, null) },
+                { 0x00040008, new Item(4, 1, null) },
             };
         }
 

@@ -74,7 +74,7 @@ namespace Stealth
 
     public partial class Stealth
     {
-        public enum MapList { attic, closet, bathroom, hallway, COUNT };
+        public enum MapList { attic, closet, bathroom, hallway, bedroom, COUNT };
         public static Map[] Maps = new Map[(int)MapList.COUNT];
 
         public static void InitializeMaps()
@@ -262,6 +262,51 @@ namespace Stealth
                     { 0, 0, 0, 0, },
                 },
                 palettesType: PalettesTypes.red
+            );
+
+            Maps[(int)MapList.bedroom] = new Map
+            (
+                walls: new sbyte[,]
+                {
+                    { 3,-1,-1,-1,-1,-1,-1,-1, 3, },
+                    { 3,-1,-1,-1,-1,-1,-1,-1, 3, },
+                    { 3,-1,-1,-1,-1,-1,-1,-1, 3, },
+                    { 3,-1,-1,-1,-1,-1,-1,-1, 3, },
+                    { 3,-1,-1,-1,-1,-1,-1,-1, 3, },
+                    { 3,-1,-1,-1,-1,-1,-1,-1, 3, },
+                    { 3, 3, 3, 3, 3, 3, 3, 3, 3, },
+                },
+                ceilings: new sbyte[,]
+                {
+                    { 2, 2, 2, 2, 2, 2, 2, 2, 2 },
+                    { 2, 2, 2, 2, 2, 2, 2, 2, 2 },
+                    { 2, 2, 2, 2, 2, 2, 2, 2, 2 },
+                    { 2, 2, 2, 2, 2, 2, 2, 2, 2 },
+                    { 2, 2, 2, 2, 2, 2, 2, 2, 2 },
+                    { 2, 2, 2, 2, 2, 2, 2, 2, 2 },
+                    { 2, 2, 2, 2, 2, 2, 2, 2, 2 },
+                },
+                floors: new sbyte[,]
+                {
+                    { 1, 1, 1,32,33,34, 1, 1, 1 },
+                    { 1, 1, 1,31,30,29, 1, 1, 1 },
+                    { 1, 1, 1,26,27,28, 1, 1, 1 },
+                    { 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+                    { 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+                    { 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+                    { 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+                },
+                collision: new byte[,]
+                {
+                    { 0, 9, 8, 8, 8, 8, 8,12, 0, },
+                    { 0, 1, 0, 0, 0, 0, 0, 4, 0, },
+                    { 0, 1, 0, 0, 0, 0, 0, 4, 0, },
+                    { 0, 1, 0, 0, 0, 0, 0, 4, 0, },
+                    { 0, 1, 0, 0, 0, 0, 0, 4, 0, },
+                    { 0, 3, 2, 2, 2, 2, 2, 6, 0, },
+                    { 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+                },
+                palettesType: PalettesTypes.crimson
             );
         }
     }

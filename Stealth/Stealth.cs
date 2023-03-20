@@ -77,7 +77,7 @@ namespace Stealth
 
             State = new State();
 
-            State.Player.Room = (int)MapList.hallway;
+            State.Player.Room = (int)MapList.bedroom;
             State.Player.X = (sbyte)(Maps[State.Player.Room].Width / 2);
 
             // Initialize graphics
@@ -222,7 +222,7 @@ namespace Stealth
                         short iFloor = (short)Math.Floor(xFloor);
                         short jFloor = (short)Math.Floor(yFloor);
                         short i = (short)(Assets.Floor.Sprites[Maps[State.Player.Room].Floors[jFloor, iFloor]].Width * (xFloor - Math.Floor(xFloor)));
-                        short j = (short)(Assets.Floor.Sprites[Maps[State.Player.Room].Floors[jFloor, iFloor]].Height * (yFloor - Math.Floor(yFloor)));
+                        short j = (short)(Assets.Floor.Sprites[Maps[State.Player.Room].Floors[jFloor, iFloor]].Height * (1 - yFloor + Math.Floor(yFloor)) - 1);
                         if (yFloor < depth[screenIdx])
                         {
                             screen[screenIdx] = Assets.Floor.Sprites[Maps[State.Player.Room].Floors[jFloor, iFloor]].GetPixel(i, j);
