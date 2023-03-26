@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 
 namespace Stealth
 {
@@ -34,10 +35,10 @@ namespace Stealth
         public const double VEL = 0.05;
 
         private double lastGameTime;
-        private double[] xPosInit;
-        private double[] yPosInit;
-        private double[] xVelInit;
-        private double[] yVelInit;
+        private float[] xPosInit;
+        private float[] yPosInit;
+        private float[] xVelInit;
+        private float[] yVelInit;
 
         private IEnumerable<KeyValuePair<uint, Item>> items;
 
@@ -74,6 +75,7 @@ namespace Stealth
             RNG = new Random();
 
             InitializeMaps();
+            Dither.InitDither();
 
             State = new State();
 
@@ -87,17 +89,17 @@ namespace Stealth
             Assets.Player.Init();
             Assets.Item.Init();
 
-            xPosInit = new double[SCREEN_WIDTH];
-            yPosInit = new double[SCREEN_WIDTH];
-            xVelInit = new double[SCREEN_WIDTH];
-            yVelInit = new double[SCREEN_WIDTH];
+            xPosInit = new float[SCREEN_WIDTH];
+            yPosInit = new float[SCREEN_WIDTH];
+            xVelInit = new float[SCREEN_WIDTH];
+            yVelInit = new float[SCREEN_WIDTH];
             for (int x = 0; x < SCREEN_WIDTH; x++)
             {
-                xPosInit[x] = (x + 0.5) * ((double)CAMERA_WIDTH) * INVERSE_SCREEN_WIDTH;
+                xPosInit[x] = (float)((x + 0.5) * ((double)CAMERA_WIDTH) * INVERSE_SCREEN_WIDTH);
                 yPosInit[x] = 0;
                 double inverseDist = 1 / Math.Sqrt(Math.Pow(xPosInit[x] - CAMERA_WIDTH * 0.5, 2) + Math.Pow(CAMERA_DISTANCE, 2));
-                xVelInit[x] = VEL * ((xPosInit[x] - CAMERA_WIDTH * 0.5) * inverseDist);
-                yVelInit[x] = VEL * CAMERA_DISTANCE * inverseDist;
+                xVelInit[x] = (float)(VEL * ((xPosInit[x] - CAMERA_WIDTH * 0.5) * inverseDist));
+                yVelInit[x] = (float)(VEL * CAMERA_DISTANCE * inverseDist);
             }
 
             items = State.GetItemsInRoom();
@@ -153,20 +155,24 @@ namespace Stealth
             short[] screen = new short[SCREEN_HEIGHT * SCREEN_WIDTH];
             double[] depth = Enumerable.Repeat(double.MaxValue, SCREEN_HEIGHT * SCREEN_WIDTH).ToArray();
 
-            // Declare vars
-            double xPos;
-            double yPos;
-            double xVel;
-            double yVel;
+            //// Declare vars
+            //double xPos;
+            //double yPos;
+            //double xVel;
+            //double yVel;
+
+            Light light = Light.CreateIsotropic(new Vector3(4.5f, 2.5f, 0.5f), 25);
+            //Light light = Light.CreateCardioid(new Vector3(4.5f, 2.5f, 0.5f), Vector3.Backward, 25);
 
             // Render Walls
-            for (int x = 0; x < SCREEN_WIDTH; x++)
+            Parallel.ForEach(Enumerable.Range(0, SCREEN_WIDTH).ToArray(), x =>
+            //for (int x = 0; x < SCREEN_WIDTH; x++)
             {
-                xPos = xPosInit[x];
-                yPos = yPosInit[x];
-                xVel = xVelInit[x];
-                yVel = yVelInit[x];
-                xPos += xCam - CAMERA_WIDTH * 0.5;
+                float xPos = xPosInit[x];
+                float yPos = yPosInit[x];
+                float xVel = xVelInit[x];
+                float yVel = yVelInit[x];
+                xPos += (float)(xCam - CAMERA_WIDTH * 0.5);
 
                 int xPrev = (int)Math.Floor(xPos);
 
@@ -187,12 +193,12 @@ namespace Stealth
                 bool orientation = xPrev == Math.Floor(xPos);
 
                 if (orientation)
-                    yPos = Math.Round(yPos);
+                    yPos = (float)Math.Round(yPos);
                 else
-                    xPos = Math.Round(xPos);
+                    xPos = (float)Math.Round(xPos);
 
 
-                
+
                 int height = (int)(SCREEN_HEIGHT * CAMERA_DISTANCE / (CAMERA_DISTANCE + yPos));
 
                 // Shortlist sprites
@@ -216,44 +222,52 @@ namespace Stealth
                     // Render floors
                     if (y > (SCREEN_HEIGHT + height) * 0.5)
                     {
-                        double z = (double)y * INVERSE_SCREEN_HEIGHT - 0.5;
-                        double yFloor = 0.5 * CAMERA_DISTANCE / z - CAMERA_DISTANCE;
-                        double xFloor = ((x + 0.5) * INVERSE_SCREEN_WIDTH - 0.5) * CAMERA_WIDTH * (CAMERA_DISTANCE + yFloor) * INVERSE_CAMERA_DISTANCE + xCam;
+                        float z = (float)((float)y * INVERSE_SCREEN_HEIGHT - 0.5);
+                        float yFloor = (float)(0.5 * CAMERA_DISTANCE / z - CAMERA_DISTANCE);
+                        float xFloor = (float)(((x + 0.5) * INVERSE_SCREEN_WIDTH - 0.5) * CAMERA_WIDTH * (CAMERA_DISTANCE + yFloor) * INVERSE_CAMERA_DISTANCE + xCam);
                         short iFloor = (short)Math.Floor(xFloor);
                         short jFloor = (short)Math.Floor(yFloor);
                         short i = (short)(Assets.Floor.Sprites[Maps[State.Player.Room].Floors[jFloor, iFloor]].Width * (xFloor - Math.Floor(xFloor)));
                         short j = (short)(Assets.Floor.Sprites[Maps[State.Player.Room].Floors[jFloor, iFloor]].Height * (1 - yFloor + Math.Floor(yFloor)) - 1);
                         if (yFloor < depth[screenIdx])
                         {
-                            screen[screenIdx] = Assets.Floor.Sprites[Maps[State.Player.Room].Floors[jFloor, iFloor]].GetPixel(i, j);
+                            Vector3 ray = light.Intensity(new Vector3(xFloor, yFloor, 4));
+                            ray = new Vector3(ray.X, ray.Y, ray.Z);
+                            screen[screenIdx] = Assets.Floor.Sprites[Maps[State.Player.Room].Floors[jFloor, iFloor]].GetPixel(i, j, ray);
                             depth[screenIdx] = yFloor;
                         }
                     }
                     // Render ceilings
                     else if (y < (SCREEN_HEIGHT - height) * 0.5)
                     {
-                        double z = (double)0.5 - y * INVERSE_SCREEN_HEIGHT ;
-                        double yCeiling = 0.5 * CAMERA_DISTANCE / z - CAMERA_DISTANCE;
-                        double xCeiling = ((x + 0.5) * INVERSE_SCREEN_WIDTH - 0.5) * CAMERA_WIDTH * (CAMERA_DISTANCE + yCeiling) * INVERSE_CAMERA_DISTANCE + xCam;
+                        float z = (float)(0.5 - (float)y * INVERSE_SCREEN_HEIGHT);
+                        float yCeiling = (float)(0.5 * CAMERA_DISTANCE / z - CAMERA_DISTANCE);
+                        float xCeiling = (float)(((x + 0.5) * INVERSE_SCREEN_WIDTH - 0.5) * CAMERA_WIDTH * (CAMERA_DISTANCE + yCeiling) * INVERSE_CAMERA_DISTANCE + xCam);
                         short iCeiling = (short)Math.Floor(xCeiling);
                         short jCeiling = (short)Math.Floor(yCeiling);
                         short iFine = (short)(Assets.Ceiling.Sprites[Maps[State.Player.Room].Ceilings[jCeiling, iCeiling]].Width * (xCeiling - Math.Floor(xCeiling)));
                         short jFine = (short)(Assets.Ceiling.Sprites[Maps[State.Player.Room].Ceilings[jCeiling, iCeiling]].Height * (yCeiling - Math.Floor(yCeiling)));
                         if (yCeiling < depth[screenIdx])
                         {
-                            screen[screenIdx] = Assets.Ceiling.Sprites[Maps[State.Player.Room].Ceilings[jCeiling, iCeiling]].GetPixel(iFine, jFine);
+                            Vector3 ray = light.Intensity(new Vector3(xCeiling, yCeiling, 0));
+                            ray = new Vector3(ray.X, -ray.Y, -ray.Z);
+                            screen[screenIdx] = Assets.Ceiling.Sprites[Maps[State.Player.Room].Ceilings[jCeiling, iCeiling]].GetPixel(iFine, jFine, ray);
                             depth[screenIdx] = yCeiling;
                         }
                     }
                     // Render Walls
                     else
                     {
+                        float zPoz = (float)(4 * (y - (SCREEN_HEIGHT - height) * 0.5) / height);
+                        Vector3 ray = light.Intensity(new Vector3(xPos, yPos, zPoz));
+
                         short j = (short)(Assets.Wall.Sprites[wall].Height * (y - (SCREEN_HEIGHT - height) * 0.5) / height);
                         short i = orientation ? (short)(Assets.Wall.Sprites[wall].Width * (xPos - Math.Floor(xPos))) : (short)(Assets.Wall.Sprites[wall].Width * ((xVel < 0) ? (yPos - Math.Floor(yPos)) : (1 - yPos + Math.Floor(yPos))));
-                        j = Math.Max(Math.Min(j, (short)(Assets.Wall.Sprites[wall].Height-1)), (short)0);
+                        j = Math.Max(Math.Min(j, (short)(Assets.Wall.Sprites[wall].Height - 1)), (short)0);
                         if (yPos < depth[screenIdx])
                         {
-                            screen[screenIdx] = Assets.Wall.Sprites[wall].GetPixel(i, j);
+                            ray = orientation ? new Vector3(ray.X, ray.Z, ray.Y) : ((xVel < 0) ? new Vector3(ray.Y, ray.Z, -ray.X) : new Vector3(-ray.Y, ray.Z, ray.X));
+                            screen[screenIdx] = Assets.Wall.Sprites[wall].GetPixel(i, j, ray);
                             depth[screenIdx] = yPos;
                         }
                     }
@@ -264,7 +278,7 @@ namespace Stealth
                         uint key = kvp.Key;
                         sbyte itemX = (sbyte)(key & 0xFF);
                         sbyte itemY = (sbyte)((key >> 8) & 0xFF);
-                        if (itemY-0.1 > depth[screenIdx])
+                        if (itemY - 0.1 > depth[screenIdx])
                             break;
                         Item item = kvp.Value;
                         short i = (short)Math.Floor(item.Sprite.Width * (((((double)CAMERA_WIDTH * x * INVERSE_SCREEN_WIDTH) - (CAMERA_WIDTH * 0.5)) * (CAMERA_DISTANCE + itemY) * INVERSE_CAMERA_DISTANCE) + (CAMERA_WIDTH * 0.5 - itemX + xCam - CAMERA_WIDTH * 0.5)));
@@ -290,16 +304,20 @@ namespace Stealth
                         }
                     }
                 }
-            }
+            });
 
             // Convert to color
             Color[] colors = new Color[SCREEN_WIDTH * SCREEN_HEIGHT];
             for (int i = 0; i < SCREEN_WIDTH * SCREEN_HEIGHT; i++)
             {
-                // Jitter
-                screen[i] = (short)Math.Max(Math.Min(screen[i] + (short)(RNG.Next(-8, 9) * 0.125), 3), 0);
+                // Dither
+                short dither = Dither.ToDither(screen[i], i / SCREEN_WIDTH, i % SCREEN_WIDTH);
 
-                colors[i] = Palettes[(int)Maps[State.Player.Room].PalettesType, screen[i]];
+                // Jitter
+                dither = (short)Math.Max(Math.Min(dither + (short)(RNG.Next(-8, 9) * 0.125), 3), 0);
+
+                // Color
+                colors[i] = Palettes[(int)Maps[State.Player.Room].PalettesType, dither];
             }
 
             Texture2D texture = new Texture2D(GraphicsDevice, SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -309,7 +327,7 @@ namespace Stealth
             _spriteBatch.Draw(texture, new Rectangle(new Point(0, 0), new Point(Window.ClientBounds.Width, Window.ClientBounds.Height)), Color.White);
             //spriteBatch.DrawString(new SpriteFont(, $"FRAMERATE: {1 / (gameTime.TotalGameTime.TotalSeconds - lastGameTime):N2} FPS", new Vector2(), Color.Red);
             _spriteBatch.End();
-            Debug.WriteLine($"FRAMERATE: {1 / (gameTime.TotalGameTime.TotalSeconds - lastGameTime):N2} FPS");
+            //Debug.WriteLine($"FRAMERATE: {1 / (gameTime.TotalGameTime.TotalSeconds - lastGameTime):N2} FPS");
             lastGameTime = gameTime.TotalGameTime.TotalSeconds;
 
             base.Draw(gameTime);

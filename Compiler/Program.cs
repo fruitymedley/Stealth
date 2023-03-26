@@ -4,6 +4,7 @@ using System.Text;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using System.Linq;
+using System.Numerics;
 
 namespace Compiler
 {
@@ -29,6 +30,7 @@ namespace Compiler
                         "using System;\n" +
                         "using System.Collections.Generic;\n" +
                         "using System.Text;\n" +
+                        "using Microsoft.Xna.Framework;\n" +
                         "using Stealth;\n" +
                         "\n" +
                         "namespace Stealth.Assets\n" +
@@ -41,41 +43,75 @@ namespace Compiler
                         "           Sprites = new Dictionary<int, Sprite>\n" +
                         "           {\n";
 
-                    foreach (string asset in Directory.GetFiles(folder).Where(a => int.TryParse(Path.GetFileNameWithoutExtension(a), out _)).OrderBy(a => int.Parse(Path.GetFileNameWithoutExtension(a))))
+                    if (folder == "C:\\Users\\Joshua Todd\\source\\repos\\Stealth\\Compiler\\bin\\Debug\\net5.0\\Assets\\Wall"
+                        || folder == "C:\\Users\\Joshua Todd\\source\\repos\\Stealth\\Compiler\\bin\\Debug\\net5.0\\Assets\\Ceiling"
+                        || folder == "C:\\Users\\Joshua Todd\\source\\repos\\Stealth\\Compiler\\bin\\Debug\\net5.0\\Assets\\Floor")
                     {
-                        Image<Rgba32> image = Image.Load<Rgba32>(File.ReadAllBytes(asset));
-                        
-                        string texture = "{", mask = "{";
-
-                        for (int y = 0; y < image.Height; y++)
+                        foreach (string asset in Directory.GetDirectories(folder).Where(a => int.TryParse(Path.GetFileNameWithoutExtension(a), out _)).OrderBy(a => int.Parse(Path.GetFileNameWithoutExtension(a))))
                         {
-                            texture += " {";
-                            mask += " {";
-                            byte t = 0, m = 0;
-                            for (int x = 0; x < image.Width; x++)
+                            Image<Rgba32> flatImage = Image.Load<Rgba32>(File.ReadAllBytes(Path.Join(asset, "flat.png")));
+                            Image<Rgba32> reflectImage = Image.Load<Rgba32>(File.ReadAllBytes(Path.Join(asset, "reflect.png")));
+                            Image<Rgba32> normalImage = Image.Load<Rgba32>(File.ReadAllBytes(Path.Join(asset, "normal.png")));
+
+                            string mask = "{", flat = "{", reflect = "{", normal = "{";
+
+                            for (int y = 0; y < flatImage.Height; y++)
                             {
-                                if ((x & 3) == 0)
-                                    t = 0;
-                                if ((x & 7) == 0)
-                                    m = 0;
-
-                                t = (byte)((t << 2) + image[x, y].R / 64);
-                                m = (byte)((m << 1) + (image[x, y].A == 0 ? 0 : 1));
-
-                                if ((x & 3) == 3)
-                                    texture += $" {t},";
-                                if ((x & 7) == 7)
-                                    mask += $" {m},";
+                                mask += " {";
+                                flat += " {";
+                                reflect += " {";
+                                normal += " {";
+                                for (int x = 0; x < flatImage.Width; x++)
+                                {
+                                    mask += $" {(flatImage[x, y].A == 0 ? 0 : 1)},";
+                                    flat += $" {flatImage[x, y].R / 16},";
+                                    reflect += $" {reflectImage[x, y].R / 16},";
+                                    Vector3 n = new Vector3((normalImage[x, y].R - 128), (normalImage[x, y].G - 128), (normalImage[x, y].B - 128));
+                                    n = n.Length() > 0 ? n / n.Length() : new Vector3();
+                                    normal += $" new Vector3({n.X}f, {n.Y}f, {n.Z}f),";
+                                }
+                                mask += " },";
+                                flat += " },";
+                                reflect += " },";
+                                normal += " },";
                             }
-                            texture += " },";
-                            mask += " },";
+
+                            mask += " }";
+                            flat += " }";
+                            reflect += " }";
+                            normal += " }";
+
+                            buffer += "                 { " + $"{int.Parse(Path.GetFileNameWithoutExtension(asset))}, new Sprite(new sbyte[,] {mask}, new sbyte[,] {flat}, new sbyte[,] {reflect}, new Vector3[,] {normal})" + "},\n";
+
                         }
+                    }
+                    else
+                    {
+                        foreach (string asset in Directory.GetFiles(folder).Where(a => int.TryParse(Path.GetFileNameWithoutExtension(a), out _)).OrderBy(a => int.Parse(Path.GetFileNameWithoutExtension(a))))
+                        {
+                            Image<Rgba32> image = Image.Load<Rgba32>(File.ReadAllBytes(asset));
 
-                        texture += " }";
-                        mask += " }";
+                            string texture = "{", mask = "{";
 
-                        buffer += "                 { " + $"{int.Parse(Path.GetFileNameWithoutExtension(asset))}, new Sprite(new byte[,] {texture}, new byte[,] {mask})" + "},\n";
-                            
+                            for (int y = 0; y < image.Height; y++)
+                            {
+                                mask += " {";
+                                texture += " {";
+                                for (int x = 0; x < image.Width; x++)
+                                {
+                                    mask += $" {(image[x, y].A == 0 ? 0 : 1)},";
+                                    texture += $" {image[x, y].R / 16},";
+                                }
+                                mask += " },";
+                                texture += " },";
+                            }
+
+                            texture += " }";
+                            mask += " }";
+
+                            buffer += "                 { " + $"{int.Parse(Path.GetFileNameWithoutExtension(asset))}, new Sprite(new sbyte[,] {mask}, new sbyte[,] {texture})" + "},\n";
+
+                        }
                     }
 
                     buffer +=
