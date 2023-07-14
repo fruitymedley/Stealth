@@ -3,7 +3,6 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Stealth.Assets;
 
 namespace Stealth
 {
@@ -288,12 +287,9 @@ namespace Stealth
                 },
                 floors: new sbyte[,]
                 {
-                    //{ 1, 1, 1,32,33,34, 1, 1, 1 },
-                    //{ 1, 1, 1,31,30,29, 1, 1, 1 },
-                    //{ 1, 1, 1,26,27,28, 1, 1, 1 },
-                    { 1, 1, 1, 1, 1, 1, 1, 1, 1 },
-                    { 1, 1, 1, 1, 1, 1, 1, 1, 1 },
-                    { 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+                    { 1, 1, 1,32,33,34, 1, 1, 1 },
+                    { 1, 1, 1,31,30,29, 1, 1, 1 },
+                    { 1, 1, 1,26,27,28, 1, 1, 1 },
                     { 1, 1, 1, 1, 1, 1, 1, 1, 1 },
                     { 1, 1, 1, 1, 1, 1, 1, 1, 1 },
                     { 1, 1, 1, 1, 1, 1, 1, 1, 1 },

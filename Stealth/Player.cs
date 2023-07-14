@@ -167,7 +167,8 @@ namespace Stealth
                     int which = (X + Y) % 2;
                     frame = (short)((int)((1 - Distance) * 3) % 3 + 4 * which);
                 }
-                return Assets.Player.Sprites[(short)(animation * 32 + (short)Direction * 8 + frame)];
+                //return Assets.Players[(short)(animation * 32 + (short)Direction * 8 + frame)];
+                return Assets.Players[24];
             }
         }
     }

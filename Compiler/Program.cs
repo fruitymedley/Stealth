@@ -40,12 +40,12 @@ namespace Compiler
                         "       public static Dictionary<int, Sprite> Sprites;\n" +
                         "       public static void Init()\n" +
                         "       {\n" +
-                        "           Sprites = new Dictionary<int, Sprite>\n" +
-                        "           {\n";
+                        "           Sprites = new Dictionary<int, Sprite>();\n";
 
                     if (folder == "C:\\Users\\Joshua Todd\\source\\repos\\Stealth\\Compiler\\bin\\Debug\\net5.0\\Assets\\Wall"
                         || folder == "C:\\Users\\Joshua Todd\\source\\repos\\Stealth\\Compiler\\bin\\Debug\\net5.0\\Assets\\Ceiling"
-                        || folder == "C:\\Users\\Joshua Todd\\source\\repos\\Stealth\\Compiler\\bin\\Debug\\net5.0\\Assets\\Floor")
+                        || folder == "C:\\Users\\Joshua Todd\\source\\repos\\Stealth\\Compiler\\bin\\Debug\\net5.0\\Assets\\Floor"
+                        || folder == "C:\\Users\\Joshua Todd\\source\\repos\\Stealth\\Compiler\\bin\\Debug\\net5.0\\Assets\\Item")
                     {
                         foreach (string asset in Directory.GetDirectories(folder).Where(a => int.TryParse(Path.GetFileNameWithoutExtension(a), out _)).OrderBy(a => int.Parse(Path.GetFileNameWithoutExtension(a))))
                         {
@@ -81,7 +81,7 @@ namespace Compiler
                             reflect += " }";
                             normal += " }";
 
-                            buffer += "                 { " + $"{int.Parse(Path.GetFileNameWithoutExtension(asset))}, new Sprite(new sbyte[,] {mask}, new sbyte[,] {flat}, new sbyte[,] {reflect}, new Vector3[,] {normal})" + "},\n";
+                            buffer += "           " + $"Sprites[{int.Parse(Path.GetFileNameWithoutExtension(asset))}] = new Sprite(new sbyte[,] {mask}, new sbyte[,] {flat}, new sbyte[,] {reflect}, new Vector3[,] {normal});\n";
 
                         }
                     }
@@ -109,13 +109,12 @@ namespace Compiler
                             texture += " }";
                             mask += " }";
 
-                            buffer += "                 { " + $"{int.Parse(Path.GetFileNameWithoutExtension(asset))}, new Sprite(new sbyte[,] {mask}, new sbyte[,] {texture})" + "},\n";
+                            buffer += "           " + $"Sprites[{int.Parse(Path.GetFileNameWithoutExtension(asset))}] = new Sprite(new sbyte[,] {mask}, new sbyte[,] {texture});\n";
 
                         }
                     }
 
                     buffer +=
-                        "           };\n" +
                         "       }\n" +
                         "   }\n" +
                         "}\n";

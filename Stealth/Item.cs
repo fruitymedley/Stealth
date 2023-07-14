@@ -23,6 +23,6 @@ namespace Stealth
             this.children = children;
         }
 
-        public Sprite Sprite { get => Assets.Item.Sprites[ID]; }
+        public Sprite Sprite { get => Assets.Items[ID]; }
     }
 }
