@@ -22,8 +22,8 @@ namespace Stealth
                 walls = value;
                 height = (sbyte)walls.GetLength(0);
                 width = (sbyte)walls.GetLength(1);
-                cameraXMin = Math.Min(Stealth.CAMERA_WIDTH / 2.0 + 1, Width / 2.0);
-                cameraXMax = Math.Max(Width - Stealth.CAMERA_WIDTH / 2.0 - 1, Width / 2.0);
+                cameraXMin = Math.Min(Graphics.CAMERA_WIDTH / 2.0 + 1, Width / 2.0);
+                cameraXMax = Math.Max(Width - Graphics.CAMERA_WIDTH / 2.0 - 1, Width / 2.0);
             }
         }
 

@@ -19,6 +19,15 @@ namespace Stealth
         {
             items = new List<Item>();
         }
+
+        public Inventory Copy()
+        {
+            return new Inventory
+            {
+                Selection = Selection,
+                Items = Items.ToList(),
+            };
+        }
     }
 
     public partial class Stealth

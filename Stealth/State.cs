@@ -10,7 +10,7 @@ namespace Stealth
         public Player Player { get; set; }
         public Inventory Inventory { get; set; }
         public Dictionary<uint, Item> Items { get; set; }
-
+        
         public State()
         {
             Player = new Player();
@@ -137,6 +137,16 @@ namespace Stealth
         public IEnumerable<KeyValuePair<uint, Item>> GetItemsInRoom()
         {
             return Items.Where(kvp => (kvp.Key >> 16) == Player.Room).OrderBy(kvp => kvp.Key);
+        }
+
+        public State Copy()
+        {
+            return new State
+            {
+                Player = Player.Copy(),
+                Inventory = Inventory.Copy(),
+                Items = Items.ToDictionary(kvp => kvp.Key, kvp => kvp.Value),
+            };
         }
     }
 }

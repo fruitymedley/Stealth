@@ -9,10 +9,10 @@ namespace Stealth
     {
         public const float bitToDither = Dither.DEPTH / 16.0f;
 
-        private sbyte[,] mask;
-        private sbyte[,] flat;
-        private sbyte[,] reflect;
-        private Vector3[,] normal;
+        public sbyte[,] Mask;
+        public sbyte[,] Flat;
+        public sbyte[,] Reflect;
+        public Vector3[,] Normal;
 
         private short width;
         public short Width { get => width; }
@@ -31,28 +31,13 @@ namespace Stealth
             if (normal != null && (flat.GetLength(0) != normal.GetLength(0) || flat.GetLength(1) != normal.GetLength(1)))
                 throw new ArgumentException("Flat and normal array size mismatch. Arrays must be mxn.");
 
-            width = (short)mask.GetLength(1);
-            height = (short)mask.GetLength(0);
+            width = (short)mask.GetLength(0);
+            height = (short)mask.GetLength(1);
 
-            this.mask = mask;
-            this.flat = flat;
-            this.reflect = reflect;
-            this.normal = normal;
-        }
-
-        public sbyte GetPixel(short x, short y, Vector3[] rays=null)
-        {
-            if (rays == null || reflect == null || normal == null)
-                return mask[y,x] == 0 ? (sbyte)-1 : flat[y, x];
-
-            float intensity = 0;
-            foreach (Vector3 ray in rays)
-            {
-                float part = Vector3.Dot((Vector3)ray, normal[y, x]);
-                if (part > 0)
-                    intensity += part;
-            }
-            return (sbyte)Math.Max(0, Math.Min(Dither.DEPTH, mask[y, x] == 0 ? -1 : flat[y, x] * bitToDither + reflect[y, x] * intensity));
+            this.Mask = mask;
+            this.Flat = flat;
+            this.Reflect = reflect;
+            this.Normal = normal;
         }
     }
 }

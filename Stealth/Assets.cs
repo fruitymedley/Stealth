@@ -28,19 +28,19 @@ namespace Stealth
                 Image<Rgba32> reflectImage = Image.Load<Rgba32>(File.ReadAllBytes(Path.Join(asset, "reflect.png")));
                 Image<Rgba32> normalImage = Image.Load<Rgba32>(File.ReadAllBytes(Path.Join(asset, "normal.png")));
 
-                sbyte[,] mask = new sbyte[flatImage.Height, flatImage.Width], flat = new sbyte[flatImage.Height, flatImage.Width], reflect = new sbyte[flatImage.Height, flatImage.Width];
-                Vector3[,] normal = new Vector3[flatImage.Height, flatImage.Width];
+                sbyte[,] mask = new sbyte[flatImage.Width, flatImage.Height], flat = new sbyte[flatImage.Width, flatImage.Height], reflect = new sbyte[flatImage.Width, flatImage.Height];
+                Vector3[,] normal = new Vector3[flatImage.Width, flatImage.Height];
 
                 for (int y = 0; y < flatImage.Height; y++)
                 {
                     for (int x = 0; x < flatImage.Width; x++)
                     {
-                        mask[y, x] = (sbyte)(flatImage[x, y].A == 0 ? 0 : 1);
-                        flat[y, x] = (sbyte)(flatImage[x, y].R / 16);
-                        reflect[y, x] = (sbyte)(reflectImage[x, y].R / 16);
-                        Vector3 n = new Vector3((normalImage[x, y].R - 128), (normalImage[x, y].G - 128), (normalImage[x, y].B - 128));
+                        mask[x, y] = (sbyte)(flatImage[x, y].A == 0 ? 0 : 1);
+                        flat[x, y] = (sbyte)(flatImage[x, y].R / 16);
+                        reflect[x, y] = (sbyte)(reflectImage[x, y].R / 16);
+                        Vector3 n = new Vector3((128 - normalImage[x, y].R), (normalImage[x, y].B - 128), (normalImage[x, y].G - 128));
                         n = n.Length() > 0 ? n / n.Length() : new Vector3();
-                        normal[y, x] = n;
+                        normal[x, y] = n;
                     }
                 }
 

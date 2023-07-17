@@ -32,6 +32,8 @@ namespace Stealth
                 }
             }
         }
+        public double XCam { get; private set; }
+
         public sbyte Y { get; set; }
         public double Yfine
         {
@@ -148,6 +150,15 @@ namespace Stealth
                     Animation = Animation.still;
                 }
             }
+
+
+            XCam = Xfine + 0.5;
+
+            if (XCam < Stealth.Maps[Room].CameraXMin)
+                XCam = Stealth.Maps[Room].CameraXMin;
+            if (XCam > Stealth.Maps[Room].CameraXMax)
+                XCam = Stealth.Maps[Room].CameraXMax;
+
         }
 
         public Sprite Sprite 
@@ -168,8 +179,24 @@ namespace Stealth
                     frame = (short)((int)((1 - Distance) * 3) % 3 + 4 * which);
                 }
                 //return Assets.Players[(short)(animation * 32 + (short)Direction * 8 + frame)];
-                return Assets.Players[24];
+                return Assets.Players[(short)Direction * 8];
             }
+        }
+
+        public Player Copy()
+        {
+            return new Player
+            {
+                Animation = Animation,
+                Crouching = Crouching,
+                Direction = Direction,
+                Distance = Distance,
+                Room = Room,
+                Running = Running,
+                X = X,
+                Y = Y,
+                XCam = XCam,
+            };
         }
     }
 }
