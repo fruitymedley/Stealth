@@ -179,7 +179,7 @@ namespace Stealth
                     frame = (short)((int)((1 - Distance) * 3) % 3 + 4 * which);
                 }
                 //return Assets.Players[(short)(animation * 32 + (short)Direction * 8 + frame)];
-                return Assets.Players[(short)Direction * 8];
+                return Assets.Players[(short)Direction * 8 + (Crouching ? 32 : 0)];
             }
         }
 
