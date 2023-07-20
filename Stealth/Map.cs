@@ -48,6 +48,16 @@ namespace Stealth
             set => collision = value;
         }
 
+        private Dictionary<Point, Warp> warps;
+        public Dictionary<Point, Warp> Warps
+        {
+            get => warps;
+            set => warps = value;
+        }
+
+        private Light[] lights;
+        public Light[] Lights;
+
         public Stealth.PalettesTypes PalettesType;
 
         private double cameraXMin;
@@ -55,13 +65,15 @@ namespace Stealth
         private double cameraXMax;
         public double CameraXMax { get => cameraXMax; }
 
-        public Map(sbyte[,] walls = null, sbyte[,] ceilings = null, sbyte[,] floors = null, byte[,] collision = null,
-            Stealth.PalettesTypes palettesType = Stealth.PalettesTypes.basic)
+        public Map(sbyte[,] walls = null, sbyte[,] ceilings = null, sbyte[,] floors = null, byte[,] collision = null, Dictionary<Point, Warp> warps = null,
+            Light[] lights = null, Stealth.PalettesTypes palettesType = Stealth.PalettesTypes.basic)
         {
             Walls = walls;
             Ceilings = ceilings;
             Floors = floors;
             Collision = collision;
+            Warps = warps;
+            Lights = lights;
 
             if (walls.GetLength(0) != ceilings.GetLength(0) || walls.GetLength(0) != floors.GetLength(0) || walls.GetLength(0) != collision.GetLength(0)
                 || walls.GetLength(1) != ceilings.GetLength(1) || walls.GetLength(1) != floors.GetLength(1) || walls.GetLength(1) != collision.GetLength(1))
@@ -125,6 +137,7 @@ namespace Stealth
                     { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
                     { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
                 },
+                warps: new Dictionary<Point, Warp>(),
                 palettesType: PalettesTypes.deepBlue
             );
 
@@ -132,32 +145,37 @@ namespace Stealth
             (
                 walls: new sbyte[,]
                 {
-                    {12,-1,-1,-1,12,},
-                    {12,-1,-1,-1,12,},
-                    {12,-1,-1,-1,12,},
-                    {13,13,14,13,13,},
+                    { 4,-1,-1,-1, 4,},
+                    { 4,-1,-1,-1, 4,},
+                    { 4,-1,-1,-1, 4,},
+                    { 4, 4, 4, 4, 4,},
                 },
                 ceilings: new sbyte[,]
                 {
-                    { 3, 3, 3, 3, 3,},
-                    { 3, 3, 3, 3, 3,},
-                    { 3, 3, 3, 3, 3,},
-                    { 3, 3, 3, 3, 3,},
+                    { 2, 2, 2, 2, 2,},
+                    { 2, 2, 2, 2, 2,},
+                    { 2, 2, 2, 2, 2,},
+                    { 2, 2, 2, 2, 2,},
                 },
                 floors: new sbyte[,]
                 {
-                    { 2, 2, 2, 2, 2,},
-                    { 2, 2, 2, 2, 2,},
-                    { 2, 2, 2, 2, 2,},
-                    { 2, 2, 2, 2, 2,},
+                    { 1, 1, 1, 1, 1,},
+                    { 1, 1, 1, 1, 1,},
+                    { 1, 1, 1, 1, 1,},
+                    { 1, 1, 1, 1, 1,},
                 },
                 collision: new byte[,]
                 {
                     { 0,27,24,30, 0, },
                     { 0, 0, 5, 0, 0, },
-                    { 0, 0, 7, 0, 0, },
+                    { 0, 0, 5, 0, 0, },
                     { 0, 0, 0, 0, 0, },
                 },
+                lights: new Light[]
+                {
+                    new IsotropicLight(new Vector3(2.5f, 1.5f, 0.5f), 10),
+                },
+                warps: new Dictionary<Point, Warp>() { { new Point(2, 3), new Warp((int)MapList.bedroom, 6, 0) } },
                 palettesType: PalettesTypes.gold
             );
 
@@ -165,29 +183,29 @@ namespace Stealth
             (
                 walls: new sbyte[,]
                 {
-                    {19,-1,-1,-1,-1,18,},
-                    {20,-1,-1,-1,-1,17,},
-                    {21,-1,-1,-1,-1,16,},
-                    {29,-1,23,24,25,15,},
-                    {30,-1,23,24,25,15,},
-                    {31,-1,23,24,25,15,},
-                    {29,17,23,24,25,15,},
+                    {15,-1,-1,-1,-1,15,},
+                    {15,-1,-1,-1,-1,15,},
+                    {15,-1,-1,-1,-1,15,},
+                    {15,-1,15,15,15,15,},
+                    {15,-1,15,15,15,15,},
+                    {15,-1,15,15,15,15,},
+                    {15,15,15,15,15,15,},
                 },
                 ceilings: new sbyte[,]
                 {
-                    { 3, 3, 3, 3, 3, 3,},
-                    { 3, 3, 3, 3, 3, 3,},
-                    { 3, 3, 3, 3, 3, 3,},
-                    { 3, 3, 3, 3, 3, 3,},
-                    { 3, 3, 3, 3, 3, 3,},
-                    { 3, 3, 3, 3, 3, 3,},
-                    { 3, 3, 3, 3, 3, 3,},
+                    { 2, 2, 2, 2, 2, 2,},
+                    { 2, 2, 2, 2, 2, 2,},
+                    { 2, 2, 2, 2, 2, 2,},
+                    { 2, 2, 2, 2, 2, 2,},
+                    { 2, 2, 2, 2, 2, 2,},
+                    { 2, 2, 2, 2, 2, 2,},
+                    { 2, 2, 2, 2, 2, 2,},
                 },
                 floors: new sbyte[,]
                 {
-                    {19,24,24,25,22,19,},
-                    {19,20,21,23,22,19,},
-                    {19,22,22,22,22,19,},
+                    {19,19,19,19,19,19,},
+                    {19,19,19,19,19,19,},
+                    {19,19,19,19,19,19,},
                     {19,19,19,19,19,19,},
                     {19,19,19,19,19,19,},
                     {19,19,19,19,19,19,},
@@ -196,13 +214,18 @@ namespace Stealth
                 collision: new byte[,]
                 {
                     { 0, 9,12, 0, 0, 0, },
-                    { 0, 3, 6, 0, 0, 0, },
+                    { 0, 2, 6, 0, 0, 0, },
                     { 0, 0, 0, 0, 0, 0, },
                     { 0, 0, 0, 0, 0, 0, },
                     { 0, 0, 0, 0, 0, 0, },
                     { 0, 0, 0, 0, 0, 0, },
                     { 0, 0, 0, 0, 0, 0, },
                 },
+                lights: new Light[]
+                {
+                    new IsotropicLight(new Vector3(1.5f, 2.5f, 0.5f), 50),
+                },
+                warps: new Dictionary<Point, Warp>() { { new Point(0, 1), new Warp((int)MapList.hallway, 2, 1) } },
                 palettesType: PalettesTypes.lime
             );
 
@@ -249,16 +272,25 @@ namespace Stealth
                 },
                 collision: new byte[,]
                 {
-                    { 0, 9,12, 0, },
+                    { 0, 1, 4, 0, },
+                    { 0, 1, 0, 0, },
                     { 0, 1, 4, 0, },
                     { 0, 1, 4, 0, },
                     { 0, 1, 4, 0, },
                     { 0, 1, 4, 0, },
                     { 0, 1, 4, 0, },
-                    { 0, 1, 4, 0, },
-                    { 0, 1, 4, 0, },
+                    { 0, 0, 0, 0, },
                     { 0, 3, 6, 0, },
                     { 0, 0, 0, 0, },
+                },
+                warps: new Dictionary<Point, Warp>()
+                {
+                    { new Point(3, 1), new Warp((int)MapList.bathroom, 1, 1) },
+                    { new Point(3, 7), new Warp((int)MapList.bedroom, 1, 4) },
+                },
+                lights: new Light[]
+                {
+                    new IsotropicLight(new Vector3(2f, 20f, -10), 2500),
                 },
                 palettesType: PalettesTypes.red
             );
@@ -297,16 +329,44 @@ namespace Stealth
                 },
                 collision: new byte[,]
                 {
-                    { 0, 9, 8, 8, 8, 8, 8,12, 0, },
+                    { 0, 9, 8, 8, 8, 8, 0,12, 0, },
                     { 0, 1, 0, 0, 0, 0, 0, 4, 0, },
                     { 0, 1, 0, 0, 0, 0, 0, 4, 0, },
                     { 0, 1, 0, 0, 0, 0, 0, 4, 0, },
-                    { 0, 1, 0, 0, 0, 0, 0, 4, 0, },
+                    { 0, 0, 0, 0, 0, 0, 0, 4, 0, },
                     { 0, 3, 2, 2, 2, 2, 2, 6, 0, },
                     { 0, 0, 0, 0, 0, 0, 0, 0, 0, },
                 },
+                warps: new Dictionary<Point, Warp>()
+                {
+                    { new Point(0, 4), new Warp((int)MapList.hallway, 2, 7) },
+                    { new Point(6,-1), new Warp((int)MapList.closet, 2, 1) },
+                },
+                lights: new Light[]
+                {
+                    new IsotropicLight(new Vector3(4.5f, 2.5f, 0.5f), 25),
+                    new IsotropicLight(new Vector3(3f,   2f,   3.5f), 1),
+                    new IsotropicLight(new Vector3(6f,   2f,   3.5f), 1),
+                    new IsotropicLight(new Vector3(3.5f, 0f,   3.5f), 1),
+                    new IsotropicLight(new Vector3(5.5f, 0f,   3.5f), 1),
+                    new IsotropicLight(new Vector3(4.5f, 3f,   3.5f), 1),
+                },
                 palettesType: PalettesTypes.crimson
             );
+        }
+    }
+
+    public class Warp
+    {
+        public sbyte Room { get; set; }
+        public sbyte X { get; set; }
+        public sbyte Y { get; set; }
+
+        public Warp(sbyte room, sbyte x, sbyte y)
+        {
+            Room = room;
+            X = x;
+            Y = y;
         }
     }
 }

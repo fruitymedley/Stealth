@@ -100,6 +100,7 @@ namespace Stealth
 
         private int[] backgroundsToRedraw(State state)
         {
+            return Enumerable.Range(0, SCREEN_WIDTH).ToArray();
             if (previousState == null)
                 return Enumerable.Range(0, SCREEN_WIDTH).ToArray();
 
@@ -144,7 +145,7 @@ namespace Stealth
                     yPos += yVel;
                 }
 
-                wall = 0;
+                wall = -1;
                 if (xPos >= 0 && xPos < mapWidth && yPos >= 0 && yPos < mapHeight)
                 {
                     wall = mapWalls[(int)yPos, (int)xPos];
@@ -198,7 +199,7 @@ namespace Stealth
                         jCeiling = (short)Math.Floor(yCeiling);
                         iFine = (short)(Assets.Ceilings[mapCeilings[jCeiling, iCeiling]].Width * (xCeiling - Math.Floor(xCeiling)));
                         jFine = (short)(Assets.Ceilings[mapCeilings[jCeiling, iCeiling]].Height * (yCeiling - Math.Floor(yCeiling)));
-                        sprite = Assets.Ceilings[mapCeilings[jCeiling, jCeiling]];
+                        sprite = Assets.Ceilings[mapCeilings[jCeiling, iCeiling]];
 
                         pixel.Depth = yCeiling;
                         pixel.Flat = sprite.Flat[iFine, jFine];
@@ -211,7 +212,7 @@ namespace Stealth
                         pixel.Normal.Z = -sprite.Normal[iFine, jFine].Y;
                     }
                     // Render Walls
-                    else
+                    else if (wall >= 0)
                     {
                         zPos = (float)(4 * (y - (SCREEN_HEIGHT - height) * 0.5) / height);
 
@@ -253,8 +254,8 @@ namespace Stealth
 
         private void redrawSprites(State state, ConcurrentBag<Point> points)
         {
-            if (previousState != null)
-                return;
+            //if (previousState != null)
+            //    return;
 
             double xCam = state.Player.XCam;
 

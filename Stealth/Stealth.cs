@@ -121,21 +121,12 @@ namespace Stealth
         {
             GraphicsDevice.Clear(Color.Black);
 
-            Light[] lights = new Light[]
-                {
-                    new IsotropicLight(new Vector3(4.5f, 2.5f, 0.5f), 25 + 0.2f * (float)Math.Cos(0.001 * gameTime.TotalGameTime.TotalMilliseconds) + 0.1f * (float)Math.Cos(0.03 * gameTime.TotalGameTime.TotalMilliseconds)),
-                    new IsotropicLight(new Vector3(3f,   2f,   3.5f), 1),
-                    new IsotropicLight(new Vector3(6f,   2f,   3.5f), 1),
-                    new IsotropicLight(new Vector3(3.5f, 0f,   3.5f), 1),
-                    new IsotropicLight(new Vector3(5.5f, 0f,   3.5f), 1),
-                    new IsotropicLight(new Vector3(4.5f, 3f,   3.5f), 1),
-                };
-
             Graphics.Prerender(State);
 
             _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
-            _spriteBatch.Draw(Graphics.Render(GraphicsDevice, lights), new Rectangle(new Point(0, 0), new Point(Window.ClientBounds.Width, Window.ClientBounds.Height)), Color.White);
+            _spriteBatch.Draw(Graphics.Render(GraphicsDevice, Maps[State.Player.Room].Lights), new Rectangle(new Point(0, 0), new Point(Window.ClientBounds.Width, Window.ClientBounds.Height)), Color.White);
             _spriteBatch.DrawString(font, $"FRAMERATE: {1 / (gameTime.TotalGameTime.TotalSeconds - lastGameTime):N2} FPS", new Vector2(), Color.Red);
+            _spriteBatch.DrawString(font, $"X: {State.Player.X} Y: {State.Player.Y}", new Vector2(0, 12), Color.Red);
             _spriteBatch.End();
             //Debug.WriteLine($"FRAMERATE: {1 / (gameTime.TotalGameTime.TotalSeconds - lastGameTime):N2} FPS");
             lastGameTime = gameTime.TotalGameTime.TotalSeconds;

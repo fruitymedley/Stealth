@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,13 +8,13 @@ namespace Stealth
 {
     public class Item
     {
-        private int id;
+        internal int id;
         public int ID { get => id; }
 
-        private sbyte size;
+        internal sbyte size;
         public sbyte Size { get => size; }
 
-        private List<Item> children;
+        internal List<Item> children;
         public List<Item> Children { get => children; }
 
         public Item(int id, sbyte size, List<Item> children)

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -94,7 +95,7 @@ namespace Stealth
                     Direction = Direction.right;
                     break;
                 case Animation.down:
-                    if ((collision[Y, X] & 0x08) == 0 && (Direction == Direction.down || Running) && ((collision[Y - 1, X] & 0x10) == 0 || Crouching))
+                    if ((collision[Y, X] & 0x08) == 0 && (Direction == Direction.down || Running) && (Y == 0 || (collision[Y - 1, X] & 0x10) == 0 || Crouching))
                         Y -= 1;
                     else
                         Animation = Animation.turn;
@@ -140,7 +141,16 @@ namespace Stealth
             else if (Running)
                 speed = 7;
 
+            double distance0 = Distance;
+            Point point = new Point(X, Y);
             Distance -= speed * seconds;
+            if (Distance < 0.5 && distance0 >= 0.5 && Stealth.Maps[Room].Warps.ContainsKey(point))
+            {
+                Warp warp = Stealth.Maps[Room].Warps[point];
+                X = warp.X;
+                Y = warp.Y;
+                Room = warp.Room;
+            }
             if (Distance <= 0)
             {
                 Distance = 0;
@@ -179,7 +189,8 @@ namespace Stealth
                     frame = (short)((int)((1 - Distance) * 3) % 3 + 4 * which);
                 }
                 //return Assets.Players[(short)(animation * 32 + (short)Direction * 8 + frame)];
-                return Assets.Players[(short)Direction * 8 + (Crouching ? 32 : 0)];
+                frame = (short)(((Math.Cos(2 * timer) - 0.5) < 0 ? 0 : 1) + ((Math.Cos(timer * 1.2) - 0.5) < 0 ? 0 : 2));
+                return Assets.Players[(short)Direction * 8 + (Crouching ? 32 : 0) + frame];
             }
         }
 
