@@ -358,7 +358,7 @@ namespace Stealth
                 for (int y = 0; y < SCREEN_HEIGHT; y++)
                 {
                     pixel = player[x, y];
-                    i = (short)Math.Floor(48 + 32 * (((((double)CAMERA_WIDTH * x * INVERSE_SCREEN_WIDTH) - (CAMERA_WIDTH * 0.5)) * (CAMERA_DISTANCE + yFine) * INVERSE_CAMERA_DISTANCE) + (xCam - xFine - 1)));
+                    i = (short)Math.Floor(32 * (((((double)CAMERA_WIDTH * x * INVERSE_SCREEN_WIDTH) - (CAMERA_WIDTH * 0.5)) * (CAMERA_DISTANCE + yFine) * INVERSE_CAMERA_DISTANCE) + (xCam - xFine)));
                     j = (short)(sprite.Height * (((double)y * INVERSE_SCREEN_HEIGHT - 0.5) * (CAMERA_DISTANCE + yFine) * INVERSE_CAMERA_DISTANCE + 0.5));
 
                     if (i >= 0 && i < sprite.Width && j >= 0 && j < sprite.Height && sprite.Mask[i, j] > 0)
