@@ -25,9 +25,9 @@ namespace Stealth
                 switch (Animation)
                 {
                     case Animation.left:
-                        return X;
+                        return X - (Distance <= 0.125 ? 1 : 0);
                     case Animation.right:
-                        return X - 1;
+                        return X - (Distance > 0.125 ? 1 : 0);
                     default:
                         return X;
                 }
@@ -43,9 +43,9 @@ namespace Stealth
                 switch (Animation)
                 {
                     case Animation.up:
-                        return Y - Distance;
+                        return Y - Math.Ceiling(Distance * 4) * 0.25 ;
                     case Animation.down:
-                        return Y + Distance;
+                        return Y + Math.Ceiling(Distance * 4) * 0.25;
                     default:
                         return Y;
                 }
@@ -186,7 +186,7 @@ namespace Stealth
                 {
                     animation = (short)(Crouching ? 3 : (Running ? 4 : 2));
                     int which = (X + Y) % 2;
-                    frame = (short)((int)((1 - Distance) * 3) % 3 + 4 * which);
+                    frame = (short)((int)((1.125 - Distance) * 4) % 4 + 4 * which);
                 }
                 return Assets.Players[(short)(animation * 32 + (short)Direction * 8 + frame)];
             }
